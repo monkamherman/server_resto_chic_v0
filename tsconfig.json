@@ -1,0 +1,39 @@
+{
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "types": ["node", "express"],
+    "target": "ESNext",
+    "module": "CommonJS",
+    "baseUrl": "./src",
+    "paths": {
+      "@application/*": ["application/*"],
+      "@domain/*": ["domain/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@interfaces/*": ["interfaces/*"],
+      "@shared/*": ["shared/*"]
+    },
+    "rootDir": "./src",
+    "moduleResolution": "Node",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "sourceMap": true,
+    "outDir": "dist/",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "lib": [
+      "es6",
+      "dom",
+      "es2015",
+      "es2016",
+      "es2017",
+      "es2018",
+      "es2019",
+      "es2020"
+    ]
+  }
+}

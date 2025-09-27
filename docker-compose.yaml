@@ -1,0 +1,51 @@
+networks:
+  app-network:
+    external: true
+
+services:
+  app:
+    build: .
+    ports:
+      - "4000:3000"
+    env_file:
+      - ./.env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app-network
+    labels:
+      - "monitoring=true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-appdb}
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:

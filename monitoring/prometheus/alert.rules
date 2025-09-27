@@ -1,0 +1,42 @@
+groups:
+- name: node.rules
+  rules:
+  # Alerte pour une utilisation CPU élevée
+  - alert: HighCpuUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Utilisation CPU élevée sur {{ $labels.instance }}"
+      description: "L'utilisation du CPU est de {{ $value }}% pendant plus de 5 minutes"
+
+  # Alerte pour une utilisation mémoire élevée
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Cached_bytes + node_memory_Buffers_bytes)) / node_memory_MemTotal_bytes * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Utilisation mémoire élevée sur {{ $labels.instance }}"
+      description: "L'utilisation de la mémoire est de {{ $value }}% pendant plus de 5 minutes"
+
+  # Alerte pour un espace disque faible
+  - alert: LowDiskSpace
+    expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"} * 100) / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"} < 10
+    for: 10m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Espace disque faible sur {{ $labels.instance }}"
+      description: "Il ne reste que {{ $value }}% d'espace disque disponible sur {{ $labels.mountpoint }}"
+
+  # Alerte si l'application n'est pas disponible
+  - alert: ApplicationDown
+    expr: up{job="node-app"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "L'application est indisponible"
+      description: "L'application ne répond pas depuis plus d'une minute"

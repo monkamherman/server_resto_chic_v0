@@ -1,0 +1,94 @@
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { {{pascalCase name}}Module } from '../{{name}}.module';
+
+describe('{{pascalCase name}}Controller (e2e)', () => {
+  let app: INestApplication;
+  let apiDocument: Record<string, any>;
+
+  beforeAll(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [{{pascalCase name}}Module],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    
+    // Configuration Swagger
+    const config = new DocumentBuilder()
+      .setTitle('API Documentation')
+      .setDescription('API description')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+      
+    const document = SwaggerModule.createDocument(app, config);
+    apiDocument = JSON.parse(JSON.stringify(document)); // Deep clone
+    
+    SwaggerModule.setup('api', app, document);
+    
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  // Vérification de la documentation Swagger
+  describe('Documentation Swagger', () => {
+    it('devrait avoir la documentation Swagger générée', () => {
+      expect(apiDocument).toBeDefined();
+      expect(apiDocument.paths).toBeDefined();
+    });
+
+    // Exemple de test pour une route spécifique
+    it('devrait documenter la route GET /{{toLowerCase name}}', () => {
+      const path = '/{{toLowerCase name}}';
+      expect(apiDocument.paths[path]).toBeDefined();
+      expect(apiDocument.paths[path].get).toBeDefined();
+      
+      // Vérifier les paramètres de requête, réponses, etc.
+      if (apiDocument.paths[path].get) {
+        expect(apiDocument.paths[path].get.responses).toBeDefined();
+        expect(apiDocument.paths[path].get.responses['200']).toBeDefined();
+      }
+    });
+  });
+
+  // Tests des endpoints
+  describe('Endpoints', () => {
+    it('GET /{{toLowerCase name}}', () => {
+      return request(app.getHttpServer())
+        .get('/{{toLowerCase name}}')
+        .expect(200)
+        .then((response) => {
+          // Vérifier que la structure de la réponse correspond à la documentation
+          const expectedSchema = apiDocument.paths['/{{toLowerCase name}}']?.get?.responses?.['200']?.content?.['application/json']?.schema;
+          if (expectedSchema) {
+            // Ici, vous pouvez ajouter une validation plus poussée du schéma
+            expect(response.body).toBeDefined();
+          }
+        });
+    });
+  });
+
+  // Vérification de la cohérence des schémas
+  describe('Schémas', () => {
+    it('devrait avoir des schémas définis', () => {
+      expect(apiDocument.components?.schemas).toBeDefined();
+    });
+
+    // Exemple de vérification d'un schéma spécifique
+    it('devrait avoir un schéma pour {{pascalCase name}}', () => {
+      expect(apiDocument.components?.schemas?.['{{pascalCase name}}']).toBeDefined();
+    });
+  });
+
+  // Vérification des sécurités
+  describe('Sécurité', () => {
+    it('devrait avoir une configuration de sécurité', () => {
+      expect(apiDocument.components?.securitySchemes).toBeDefined();
+    });
+  });
+});

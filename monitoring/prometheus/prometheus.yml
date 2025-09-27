@@ -1,0 +1,50 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# Règles d'alerte
+rule_files:
+  - "alert.rules"
+
+# Configuration des cibles à surveiller
+scrape_configs:
+  # Surveiller l'application Node.js
+  - job_name: "node-app"
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["app:3000"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __scheme__
+        regex: (.*)
+        replacement: http
+
+  # Surveiller Prometheus lui-même
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Surveiller les métriques système avec Node Exporter
+  - job_name: "node"
+    static_configs:
+      - targets: ["nodeexporter:9100"]
+
+  # Surveiller les conteneurs Docker avec cAdvisor
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # Configuration pour les jobs batch avec Pushgateway
+  - job_name: "pushgateway"
+    honor_labels: true
+    static_configs:
+      - targets: ["pushgateway:9091"]
+
+# Configuration d'Alertmanager
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets: ["alertmanager:9093"]

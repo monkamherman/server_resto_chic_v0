@@ -1,0 +1,114 @@
+global:
+  # Délai avant d'envoyer une notification pour une alerte non résolue
+  resolve_timeout: 5m
+  # Configuration SMTP pour les notifications par email
+  smtp_smarthost: "smtp.gmail.com:587"
+  smtp_from: "your-email@gmail.com"
+  smtp_auth_username: "your-email@gmail.com"
+  smtp_auth_password: "your-password"
+  smtp_require_tls: true
+
+# Modèles d'emails
+# templates:
+#   - '/etc/alertmanager/template/*.tmpl'
+
+# Gestion des routes des alertes
+route:
+  # Le destinataire par défaut des alertes
+  receiver: "email-notifications"
+  # Regrouper les alertes par label d'alerte
+  group_by: ["alertname", "severity"]
+  # Temps d'attente avant d'envoyer une notification pour un nouveau groupe
+  group_wait: 30s
+  # Temps d'attente avant d'envoyer une notification pour un nouveau groupe
+  group_interval: 5m
+  # Temps d'attente avant d'envoyer à nouveau une notification pour un groupe existant
+  repeat_interval: 3h
+
+  # Routes spécifiques
+  routes:
+    - match:
+        severity: "critical"
+      receiver: "critical-email"
+      continue: true
+
+    - match:
+        severity: "warning"
+      receiver: "email-notifications"
+      continue: true
+
+# Définition des destinataires
+receivers:
+  - name: "email-notifications"
+    email_configs:
+      - to: "your-email@example.com"
+        send_resolved: true
+        headers:
+          subject: "[AlertManager] {{ .CommonAnnotations.summary }}"
+        html: |
+          <h2>{{ .CommonAnnotations.summary }}</h2>
+          <p>{{ .CommonAnnotations.description }}</p>
+          <h3>Détails de l'alerte</h3>
+          <ul>
+            <li><strong>Statut</strong>: {{ .Status | toUpper }}</li>
+            <li><strong>Sévérité</strong>: {{ .CommonLabels.severity | toUpper }}</li>
+            <li><strong>Date</strong>: {{ .StartsAt | formatDate "2006-01-02 15:04:05 UTC" }}</li>
+          </ul>
+          {{ if gt (len .Alerts.Firing) 0 }}
+          <h3>Alertes en cours</h3>
+          <ul>
+            {{ range .Alerts.Firing }}
+            <li>
+              <strong>{{ .Labels.alertname }}</strong> ({{ .Labels.severity }})<br>
+              {{ .Annotations.description }}
+            </li>
+            {{ end }}
+          </ul>
+          {{ end }}
+          {{ if gt (len .Alerts.Resolved) 0 }}
+          <h3>Alertes résolues</h3>
+          <ul>
+            {{ range .Alerts.Resolved }}
+            <li>
+              <strong>{{ .Labels.alertname }}</strong> ({{ .Labels.severity }})<br>
+              Résolue à {{ .EndsAt | formatDate "2006-01-02 15:04:05 UTC" }}
+            </li>
+            {{ end }}
+          </ul>
+          {{ end }}
+
+  - name: "critical-email"
+    email_configs:
+      - to: "critical-alerts@example.com"
+        send_resolved: true
+        headers:
+          subject: "[CRITICAL] {{ .CommonAnnotations.summary }}"
+        html: |
+          <h2 style="color: red;">ALERTE CRITIQUE: {{ .CommonAnnotations.summary }}</h2>
+          <p>{{ .CommonAnnotations.description }}</p>
+          <h3>Détails de l'alerte</h3>
+          <ul>
+            <li><strong>Statut</strong>: {{ .Status | toUpper }}</li>
+            <li><strong>Sévérité</strong>: <span style="color: red;">{{ .CommonLabels.severity | toUpper }}</span></li>
+            <li><strong>Date</strong>: {{ .StartsAt | formatDate "2006-01-02 15:04:05 UTC" }}</li>
+          </ul>
+          {{ if gt (len .Alerts.Firing) 0 }}
+          <h3>Alertes en cours</h3>
+          <ul>
+            {{ range .Alerts.Firing }}
+            <li>
+              <strong>{{ .Labels.alertname }}</strong> ({{ .Labels.severity }})<br>
+              {{ .Annotations.description }}
+            </li>
+            {{ end }}
+          </ul>
+          {{ end }}
+
+# Configuration pour le silence des alertes
+inhibit_rules:
+  - source_match:
+      severity: "critical"
+    target_match:
+      severity: "warning"
+    # Appliquer l'inhibition si les alertes ont les mêmes labels
+    equal: ["alertname", "instance"]
