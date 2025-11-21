@@ -15,13 +15,13 @@ services:
         value: 10000
       - key: NODE_ENV
         value: production
-      
+
       # Database Configuration
       - key: DATABASE_URL
         fromDatabase:
           name: mongo-db
           property: connectionString
-      
+
       # JWT Configuration
       - key: JWT_SECRET
         generateValue: true
@@ -31,7 +31,7 @@ services:
         generateValue: true
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
-      
+
       # Redis Configuration
       - key: REDIS_URL
         fromService:
@@ -49,7 +49,7 @@ services:
         fromService:
           type: redis
           property: password
-      
+
       # CORS & API Configuration
       - key: ALLOWED_ORIGINS
         value: "https://server-resto-client.on.render.com,http://localhost:3000"
@@ -67,7 +67,7 @@ databases:
     type: mongodb
 
 # Configuration Redis
-services:
+servicesdb:
   - type: redis
     name: redis-cache
     plan: free
