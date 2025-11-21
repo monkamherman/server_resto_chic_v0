@@ -1,0 +1,38 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { I{{pascalCase name}}Repository } from '../repositories/I{{pascalCase name}}Repository';
+import { Create{{pascalCase name}}Dto } from '../dtos/create-{{kebabCase name}}.dto';
+import { Update{{pascalCase name}}Dto } from '../dtos/update-{{kebabCase name}}.dto';
+import { {{pascalCase name}} } from '../entities/{{kebabCase name}}.entity';
+
+@Injectable()
+export class {{pascalCase name}}Service {
+  constructor(private readonly {{camelCase name}}Repository: I{{pascalCase name}}Repository) {}
+
+  // Implémentez ici la logique métier
+  // Exemple:
+  // async create(create{{pascalCase name}}Dto: Create{{pascalCase name}}Dto): Promise<{{pascalCase name}}> {
+  //   return this.{{camelCase name}}Repository.create(create{{pascalCase name}}Dto);
+  // }
+
+  // async findAll(): Promise<{{pascalCase name}}[]> {
+  //   return this.{{camelCase name}}Repository.findAll();
+  // }
+
+  // async findOne(id: string): Promise<{{pascalCase name}}> {
+  //   const {{camelCase name}} = await this.{{camelCase name}}Repository.findById(id);
+  //   if (!{{camelCase name}}) {
+  //     throw new NotFoundException(`{{pascalCase name}} with ID "${id}" not found`);
+  //   }
+  //   return {{camelCase name}};
+  // }
+
+  // async update(id: string, update{{pascalCase name}}Dto: Update{{pascalCase name}}Dto): Promise<{{pascalCase name}}> {
+  //   await this.findOne(id); // Vérifie si l'entité existe
+  //   return this.{{camelCase name}}Repository.update(id, update{{pascalCase name}}Dto);
+  // }
+
+  // async remove(id: string): Promise<void> {
+  //   await this.findOne(id); // Vérifie si l'entité existe
+  //   await this.{{camelCase name}}Repository.delete(id);
+  // }
+}

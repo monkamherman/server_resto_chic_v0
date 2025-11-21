@@ -1,0 +1,49 @@
+import { Controller, Get, Param, Put, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { {{pascalCase name}}Service } from '../../domain/{{kebabCase name}}/services/{{kebabCase name}}.service';
+import { {{pascalCase name}} } from '../../domain/{{kebabCase name}}/entities/{{kebabCase name}}.entity';
+import { Update{{pascalCase name}}Dto } from '../../domain/{{kebabCase name}}/dtos/update-{{kebabCase name}}.dto';
+
+@ApiTags('{{toLowerCase name}}s')
+@Controller('{{toLowerCase name}}s')
+export class {{pascalCase name}}Controller {
+  constructor(private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Get all {{toLowerCase name}}s' })
+  @ApiResponse({ status: 200, description: 'Return all {{toLowerCase name}}s.', type: [{{pascalCase name}}] })
+  async findAll(): Promise<{{pascalCase name}}[]> {
+    return this.{{camelCase name}}Service.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a {{toLowerCase name}} by ID' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID' })
+  @ApiResponse({ status: 200, description: 'Return the {{toLowerCase name}}.', type: {{pascalCase name}} })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found.' })
+  async findOne(@Param('id') id: string): Promise<{{pascalCase name}}> {
+    return this.{{camelCase name}}Service.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a {{toLowerCase name}}' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID' })
+  @ApiResponse({ status: 200, description: 'The {{toLowerCase name}} has been successfully updated.', type: {{pascalCase name}} })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found.' })
+  async update(
+    @Param('id') id: string,
+    @Body() update{{pascalCase name}}Dto: Update{{pascalCase name}}Dto,
+  ): Promise<{{pascalCase name}}> {
+    return this.{{camelCase name}}Service.update(id, update{{pascalCase name}}Dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a {{toLowerCase name}}' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID' })
+  @ApiResponse({ status: 204, description: 'The {{toLowerCase name}} has been successfully deleted.' })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found.' })
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.{{camelCase name}}Service.remove(id);
+  }
+}

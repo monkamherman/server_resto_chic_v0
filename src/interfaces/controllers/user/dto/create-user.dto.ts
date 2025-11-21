@@ -1,14 +1,14 @@
+import { UserRole } from "@domain/users/enums";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
   IsString,
   MinLength,
-  IsOptional,
-  IsEnum,
-  IsPhoneNumber,
 } from "class-validator";
-import { UserRole } from "../../../../../domain/users/enums";
 
 export class CreateUserDto {
   @ApiProperty({ description: "Nom complet de l'utilisateur" })

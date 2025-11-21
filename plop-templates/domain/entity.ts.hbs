@@ -1,0 +1,26 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+export class {{pascalCase name}} {
+  @ApiProperty({ description: 'The unique identifier of the {{toLowerCase name}}' })
+  id: string;
+
+  @ApiProperty({ description: 'The name of the {{toLowerCase name}}' })
+  name: string;
+
+  @ApiProperty({ description: 'The description of the {{toLowerCase name}}', required: false })
+  description?: string;
+
+  @ApiProperty({ description: 'The price of the {{toLowerCase name}}' })
+  price: number;
+
+  @ApiProperty({ description: 'Whether the {{toLowerCase name}} is active', default: true })
+  isActive: boolean = true;
+
+  @ApiProperty({ description: 'The date when the {{toLowerCase name}} was created' })
+  createdAt: Date;
+
+  @ApiProperty({ description: 'The date when the {{toLowerCase name}} was last updated' })
+  updatedAt: Date;
+
+  // Ajoutez d'autres propriétés selon les besoins
+}

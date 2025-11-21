@@ -1,0 +1,24 @@
+import { Controller, Put, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { {{pascalCase name}}Service } from '../../domain/{{kebabCase name}}/services/{{kebabCase name}}.service';
+import { {{pascalCase name}} } from '../../domain/{{kebabCase name}}/entities/{{kebabCase name}}.entity';
+import { Update{{pascalCase name}}Dto } from '../../domain/{{kebabCase name}}/dtos/update-{{kebabCase name}}.dto';
+
+@ApiTags('{{toLowerCase name}}s')
+@Controller('{{toLowerCase name}}s')
+export class Update{{pascalCase name}}Controller {
+  constructor(private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update a {{toLowerCase name}}' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID' })
+  @ApiResponse({ status: 200, description: 'The {{toLowerCase name}} has been successfully updated.', type: {{pascalCase name}} })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found.' })
+  async update(
+    @Param('id') id: string,
+    @Body() update{{pascalCase name}}Dto: Update{{pascalCase name}}Dto,
+  ): Promise<{{pascalCase name}}> {
+    return this.{{camelCase name}}Service.update(id, update{{pascalCase name}}Dto);
+  }
+}

@@ -1,0 +1,21 @@
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+
+export class Create{{pascalCase name}}Dto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive: boolean = true;
+
+  // Ajoutez d'autres champs selon les besoins
+}

@@ -1,0 +1,28 @@
+import { Controller, Get, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { {{pascalCase name}}Service } from '../../domain/{{kebabCase name}}/services/{{kebabCase name}}.service';
+import { {{pascalCase name}} } from '../../domain/{{kebabCase name}}/entities/{{kebabCase name}}.entity';
+
+@ApiTags('{{toLowerCase name}}s')
+@Controller('{{toLowerCase name}}s')
+export class Get{{pascalCase name}}Controller {
+  constructor(private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all {{toLowerCase name}}s' })
+  @ApiResponse({ status: 200, description: 'Return all {{toLowerCase name}}s.', type: [{{pascalCase name}}] })
+  async findAll(): Promise<{{pascalCase name}}[]> {
+    return this.{{camelCase name}}Service.findAll();
+  }
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a {{toLowerCase name}} by ID' })
+  @ApiParam({ name: 'id', description: '{{pascalCase name}} ID' })
+  @ApiResponse({ status: 200, description: 'Return the {{toLowerCase name}}.', type: {{pascalCase name}} })
+  @ApiResponse({ status: 404, description: '{{pascalCase name}} not found.' })
+  async findOne(@Param('id') id: string): Promise<{{pascalCase name}}> {
+    return this.{{camelCase name}}Service.findOne(id);
+  }
+}

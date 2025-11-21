@@ -1,45 +1,52 @@
+// Ce doit être la première instruction
 import "reflect-metadata";
+
 import compression from "compression";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import { Container } from "inversify";
+import { buildProviderModule } from "inversify-binding-decorators";
 import { InversifyExpressServer } from "inversify-express-utils";
 import morgan from "morgan";
-import { UserService } from "./application/services/UserService";
-import { UserRepository } from "./infrastructure/repositories/UserRepository";
-import { IUserRepository } from "./domain/repositories/IUserRepository";
-import { ProfileService } from "./application/services/ProfileService";
-import { IProfileService } from "./application/services/IProfileService";
+
+// Import des services
 import { AuthService } from "./application/services/AuthService";
 import { IAuthService } from "./application/services/IAuthService";
-import { TYPES } from "./shared/constants/injection.types";
-import "./controllers"; // Import des contrôleurs pour l'enregistrement automatique
+import { IProfileService } from "./application/services/IProfileService";
+import { ProfileService } from "./application/services/ProfileService";
+import { UserService } from "./application/services/UserService";
+import { IUserRepository } from "./domain/repositories/IUserRepository";
+import { UserRepository } from "./infrastructure/repositories/UserRepository";
+import { TYPES } from "./shared/constants/tokens";
 
-// Création du conteneur Inversify
-const container = new Container();
+// Import des contrôleurs (doit être fait après reflect-metadata)
+import "./controllers";
+
+// Création et configuration du conteneur Inversify
+const container = new Container({ defaultScope: "Singleton" });
 
 // Enregistrement des dépendances
-container
-  .bind<IUserRepository>(TYPES.UserRepository)
-  .to(UserRepository)
-  .inSingletonScope();
-container.bind(TYPES.UserService).to(UserService).inSingletonScope();
-container
-  .bind<IProfileService>(TYPES.ProfileService)
-  .to(ProfileService)
-  .inSingletonScope();
-container
-  .bind<IAuthService>(TYPES.AuthService)
-  .to(AuthService)
-  .inSingletonScope();
+container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
+container.bind(TYPES.UserService).to(UserService);
+container.bind<IProfileService>(TYPES.ProfileService).to(ProfileService);
+container.bind<IAuthService>(TYPES.AuthService).to(AuthService);
+
+// Charge les décorateurs @provide
+container.load(buildProviderModule());
+
 // Les contrôleurs sont automatiquement liés par inversify-express-utils
 
 // Configuration d'Inversify Express Server
 const server = new InversifyExpressServer(
   container,
   null,
-  { rootPath: "/api" }, // Préfixe d'API global
+  {
+    rootPath: "/api", // Préfixe d'API global
+  },
+  null,
+  null,
+  false // Désactive le mode par défaut qui peut causer des problèmes
 );
 
 // Configuration des middlewares
@@ -53,7 +60,7 @@ server.setConfig((app: Application) => {
   const corsOptions = {
     origin: (
       origin: string | undefined,
-      callback: (err: Error | null, allow?: boolean) => void,
+      callback: (err: Error | null, allow?: boolean) => void
     ) => {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
@@ -65,48 +72,60 @@ server.setConfig((app: Application) => {
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true,
-    optionsSuccessStatus: 200,
   };
 
   app.use(cors(corsOptions));
 
   // Sécurité
+  // Configuration de la sécurité avec Helmet
+  app.use(helmet());
+
+  // Configuration CSP séparée pour un meilleur typage
   app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'"],
-          imgSrc: ["'self'"],
-          fontSrc: ["'self'"],
-        },
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https://*"],
       },
-      hsts: {
-        maxAge: 63072000, // 2 ans
-        includeSubDomains: true,
-        preload: true,
-      },
-      frameguard: { action: "deny" },
-      hidePoweredBy: true,
-      noSniff: true,
-      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-      xssFilter: true,
-    }),
+    })
   );
+
+  // Autres en-têtes de sécurité
+  app.use(
+    helmet.hsts({
+      maxAge: 63072000, // 2 ans
+      includeSubDomains: true,
+      preload: true,
+    })
+  );
+
+  // Configuration de sécurité avancée
+  app.use(helmet.frameguard({ action: "deny" }));
+  app.use(helmet.hidePoweredBy());
+  app.use(helmet.noSniff());
+
+  // Configuration simplifiée de la politique de référence
+  app.use(
+    helmet.referrerPolicy({
+      policy: "strict-origin-when-cross-origin",
+    })
+  );
+
 
   // Compression
   app.use(compression());
 
   // Logging
-  if (process.env.NODE_ENV !== "test") {
-    app.use(morgan("combined"));
+  if (process.env.NODE_ENV !== 'test') {
+    // Utilisation d'une fonction wrapper typée explicitement
+    const morganMiddleware: express.RequestHandler = morgan("combined");
+    app.use(morganMiddleware);
   }
 
   // Fichiers statiques
   app.use(express.static("public"));
-
-  // Les routes sont gérées automatiquement par Inversify via les décorateurs @controller
 });
 
 // Configuration de la gestion des erreurs
@@ -127,7 +146,7 @@ server.setErrorConfig((app: Application) => {
         cause?: Record<string, unknown> | string | undefined;
       },
       req: Request,
-      res: Response,
+      res: Response
     ) => {
       console.error("Erreur non gérée:", err);
 
@@ -164,7 +183,7 @@ server.setErrorConfig((app: Application) => {
             ? "Une erreur est survenue"
             : err.message,
       });
-    },
+    }
   );
 });
 

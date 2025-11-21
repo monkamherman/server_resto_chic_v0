@@ -3,10 +3,13 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
     "paths": {},
     "outDir": "./dist-plop",
     "noEmit": true
   },
-  "include": ["plopfile.ts", "scripts/**/*", "templates/**/*"],
+  "include": ["plopfile.ts", "scripts/**/*", "plop-templates/**/*"],
   "exclude": ["node_modules", "dist", "src", "test"]
 }

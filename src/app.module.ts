@@ -13,6 +13,8 @@ import { AuthModule } from "./interfaces/controllers/auth/auth.module";
 import { UserModule } from "./interfaces/controllers/user/user.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
+import { OrderModule } from "./domain/order/order.module";
+import { PrismaModule } from "./infrastructure/prisma/prisma.module";
 
 @Module({
   imports: [
@@ -33,6 +35,10 @@ import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 
     // Persistence (Prisma)
     PersistenceModule,
+    PrismaModule,
+    
+    // Modules de domaine
+    OrderModule,
 
     // Métriques de l'application
     MetricsModule,

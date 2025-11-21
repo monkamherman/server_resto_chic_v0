@@ -1,8 +1,9 @@
 {
+  "extends": "./tsconfig.types.json",
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"],
   "include": ["src/**/*"],
   "compilerOptions": {
-    "types": ["node", "express", "uuid"],
+    "types": ["node", "express"],
     "target": "ESNext",
     "module": "CommonJS",
     "baseUrl": "./src",
@@ -15,7 +16,10 @@
     },
     "rootDir": "./src",
     "moduleResolution": "Node",
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
     "sourceMap": true,
     "outDir": "dist/",
     "esModuleInterop": true,

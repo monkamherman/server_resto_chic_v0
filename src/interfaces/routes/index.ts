@@ -1,14 +1,14 @@
-import { Router } from "express";
-import userRoutes from "./user.routes";
+import { Router } from 'express';
+import { setupApiRoutes } from './api.routes';
 
 const router = Router();
 
 // Route de santé
-router.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK" });
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
 });
 
 // Routes d'API
-router.use("/api/users", userRoutes);
+router.use('/api', setupApiRoutes());
 
 export default router;

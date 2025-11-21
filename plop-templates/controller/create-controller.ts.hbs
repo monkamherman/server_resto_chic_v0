@@ -1,0 +1,21 @@
+import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { {{pascalCase name}}Service } from '../../domain/{{kebabCase name}}/services/{{kebabCase name}}.service';
+import { Create{{pascalCase name}}Dto } from '../../domain/{{kebabCase name}}/dtos/create-{{kebabCase name}}.dto';
+import { {{pascalCase name}} } from '../../domain/{{kebabCase name}}/entities/{{kebabCase name}}.entity';
+
+@ApiTags('{{toLowerCase name}}s')
+@Controller('{{toLowerCase name}}s')
+export class Create{{pascalCase name}}Controller {
+  constructor(private readonly {{camelCase name}}Service: {{pascalCase name}}Service) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new {{toLowerCase name}}' })
+  @ApiResponse({ status: 201, description: 'The {{toLowerCase name}} has been successfully created.', type: {{pascalCase name}} })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 409, description: '{{pascalCase name}} already exists.' })
+  async create(@Body() create{{pascalCase name}}Dto: Create{{pascalCase name}}Dto): Promise<{{pascalCase name}}> {
+    return this.{{camelCase name}}Service.create(create{{pascalCase name}}Dto);
+  }
+}

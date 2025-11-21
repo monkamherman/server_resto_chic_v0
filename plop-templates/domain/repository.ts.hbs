@@ -1,0 +1,17 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../infrastructure/persistence/prisma/prisma.service';
+import { I{{pascalCase name}}Repository } from './repositories/I{{pascalCase name}}Repository';
+import { {{pascalCase name}} } from '../entities/{{kebabCase name}}.entity';
+
+@Injectable()
+export class {{pascalCase name}}Repository implements I{{pascalCase name}}Repository {
+  constructor(private prisma: PrismaService) {}
+
+  // Implémentez ici les méthodes du repository
+  // Exemple:
+  // async create(data: Create{{pascalCase name}}Dto): Promise<{{pascalCase name}}> {
+  //   return this.prisma.{{camelCase name}}.create({
+  //     data,
+  //   });
+  // }
+}

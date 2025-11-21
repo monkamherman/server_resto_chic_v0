@@ -98,6 +98,14 @@ export default function (plop: NodePlopAPI) {
       .replace(/^\w/, (c) => c.toLowerCase())
   );
 
+  plop.setHelper("toKebabCase", (text: string) =>
+    text
+      .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
+      .toLowerCase()
+      .replace(/[\s_]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  );
+
   // === GÉNÉRATEUR DE DOMAINE COMPLET ===
   plop.setGenerator("domain", {
     description: "🏗️ Créer une structure complète pour un domaine (DDD)",
@@ -105,8 +113,24 @@ export default function (plop: NodePlopAPI) {
       {
         type: "input",
         name: "name",
-        message: "Nom du domaine (ex: User, Product, Order):",
-        validate: plopValidate(validateName),
+        message: () => {
+          return process.argv[3] 
+            ? `Création du domaine: ${process.argv[3]}`
+            : "Nom du domaine (ex: User, Product, Order):";
+        },
+        when: (answers) => {
+          // Si un nom est fourni en argument, on le définit directement
+          if (process.argv[3]) {
+            answers.name = process.argv[3];
+            return false; // Ne pas afficher le prompt
+          }
+          return true; // Afficher le prompt
+        },
+        default: () => process.argv[3] || '',
+        validate: (value) => {
+          if (!value) return 'Le nom du domaine est requis';
+          return validateName(value).valid || 'Nom de domaine invalide';
+        },
       },
       {
         type: "confirm",
@@ -122,32 +146,32 @@ export default function (plop: NodePlopAPI) {
         {
           type: "add",
           path: `${basePath}/repositories/I{{toPascalCase name}}Repository.ts`,
-          templateFile: "templates/domain/irepository.ts.hbs"
+          templateFile: "plop-templates/domain/irepository.ts.hbs"
         },
         // Implémentation du repository
         {
           type: "add",
           path: `${basePath}/repositories/{{toPascalCase name}}Repository.ts`,
-          templateFile: "templates/domain/repository.ts.hbs"
+          templateFile: "plop-templates/domain/repository.ts.hbs"
         },
         // DTOs de base
         {
           type: "add",
-          path: `${basePath}/dtos/Create{{toPascalCase name}}Dto.ts`,
-          templateFile: "templates/domain/dtos/create-dto.ts.hbs"
+          path: `${basePath}/dtos/create-{{toKebabCase name}}.dto.ts`,
+          templateFile: "plop-templates/domain/dtos/create-dto.ts.hbs"
         },
         {
           type: "add",
-          path: `${basePath}/dtos/Update{{toPascalCase name}}Dto.ts`,
-          templateFile: "templates/domain/dtos/update-dto.ts.hbs"
+          path: `${basePath}/dtos/update-{{toKebabCase name}}.dto.ts`,
+          templateFile: "plop-templates/domain/dtos/update-dto.ts.hbs"
         }
       ];
 
       // Service métier (toujours ajouté car c'est une bonne pratique)
       actions.push({
         type: "add",
-        path: `${basePath}/services/{{toPascalCase name}}Service.ts`,
-        templateFile: "templates/domain/services/service.ts.hbs"
+        path: `${basePath}/services/{{toKebabCase name}}.service.ts`,
+        templateFile: "plop-templates/domain/services/service.ts.hbs"
       });
       
 
@@ -155,13 +179,13 @@ export default function (plop: NodePlopAPI) {
       const controllerActions = [
         {
           type: "add",
-          path: `src/interfaces/controllers/{{toLowerCase name}}/create{{toPascalCase name}}.controller.ts`,
-          templateFile: "templates/controller/create-controller.ts.hbs"
+          path: `src/interfaces/controllers/{{toLowerCase name}}/create-{{toKebabCase name}}.controller.ts`,
+          templateFile: "plop-templates/controller/create-controller.ts.hbs"
         },
         {
           type: "add",
-          path: `src/interfaces/controllers/{{toLowerCase name}}/{{toLowerCase name}}.controller.ts`,
-          templateFile: "templates/controller/base-controller.ts.hbs"
+          path: `src/interfaces/controllers/{{toLowerCase name}}/{{toKebabCase name}}.controller.ts`,
+          templateFile: "plop-templates/controller/base-controller.ts.hbs"
         },
         {
           type: "add",
@@ -178,11 +202,23 @@ export default function (plop: NodePlopAPI) {
       };
 
       // Actions CRUD supplémentaires
-      const crudActions = ["get", "update", "delete"].map((action) => ({
-        type: "add",
-        path: `src/interfaces/controllers/{{toLowerCase name}}/${action}{{toPascalCase name}}.controller.ts`,
-        templateFile: `templates/controller/${action}-controller.ts.hbs`
-      }));
+      const crudActions = [
+        {
+          type: "add",
+          path: `src/interfaces/controllers/{{toLowerCase name}}/get-{{toKebabCase name}}.controller.ts`,
+          templateFile: "plop-templates/controller/get-controller.ts.hbs"
+        },
+        {
+          type: "add",
+          path: `src/interfaces/controllers/{{toLowerCase name}}/update-{{toKebabCase name}}.controller.ts`,
+          templateFile: "plop-templates/controller/update-controller.ts.hbs"
+        },
+        {
+          type: "add",
+          path: `src/interfaces/controllers/{{toLowerCase name}}/delete-{{toKebabCase name}}.controller.ts`,
+          templateFile: "plop-templates/controller/delete-controller.ts.hbs"
+        }
+      ];
 
       return [...actions, ...controllerActions, ...crudActions, routeAction];
     },
