@@ -36,19 +36,18 @@ services:
       - key: REDIS_URL
         fromService:
           name: redis-cache
+          type: redis
           property: connectionString
       - key: REDIS_HOST
         fromService:
           name: redis-cache
+          type: redis
           property: host
       - key: REDIS_PORT
         fromService:
           name: redis-cache
+          type: redis
           property: port
-      - key: REDIS_PASSWORD
-        fromService:
-          name: redis-cache
-          property: password
 
       # CORS & API Configuration
       - key: ALLOWED_ORIGINS
@@ -62,6 +61,8 @@ services:
   - type: redis
     name: redis-cache
     plan: free
+    ipAllowList:
+      - 0.0.0.0/0  # Autoriser toutes les IP (à restreindre en production)
 
 # Configuration de la base de données MongoDB
 databases:
