@@ -1,31 +1,47 @@
-// Fichier de configuration pour la doc
+import type { Express, Request, Response } from 'express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-
-import { Express } from 'express';
 import { envs } from './core/config/env';
 
-const swaggerDefinition = {
-	openapi: '3.0.0',
-	info: {
-		title: 'template herman dev',
-		version: '1.0.0',
-		description: 'Documentation '
-	},
-	servers: [
-		{
-			url: `http://localhost:${envs.PORT}` // Change this to the URL of your API
-		}
-	]
+// Configuration Swagger
+export const swaggerOptions: swaggerJSDoc.Options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Resto',
+      version: '1.0.0',
+      description: 'Documentation de l\'API Resto',
+    },
+    servers: [
+      {
+        url: `http://localhost:${envs.PORT}`,
+        description: 'Environnement de développement local',
+      },
+      {
+        url: 'https://server-resto-api.onrender.com',
+        description: 'Environnement de production',
+      },
+    ],
+  },
+  apis: ['./src/routes/*.ts', './src/controllers/**/*.ts'],
 };
 
-const options = {
-	swaggerDefinition,
-	apis: ['./src/routes/*.ts'] // Path to the API docs
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+// Configuration des options Swagger UI
+const swaggerUiOptions = {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
 };
 
-const swaggerSpec = swaggerJSDoc(options);
+// Middleware pour gérer la documentation Swagger
+export const setupSwagger = (app: Express): void => {
+  // Route pour la documentation Swagger UI
+  const swaggerUiMiddleware = swaggerUi.setup(swaggerSpec, swaggerUiOptions);
+  app.use('/api-docs', swaggerUi.serve, swaggerUiMiddleware);
 
-export const setupSwagger = (app: Express) => {
-	app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // Redirection de la racine vers la documentation
+  app.get('/', (req: Request, res: Response) => {
+    res.redirect('/api-docs');
+  });
 };
