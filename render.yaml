@@ -1,0 +1,73 @@
+services:
+  - type: web
+    name: server-resto-api
+    env: node
+    plan: free
+    buildCommand: |
+      bun install --frozen-lockfile
+      bun run build
+      npx prisma generate
+    startCommand: bun start
+    healthCheckPath: /health
+    envVars:
+      # Server Configuration
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      
+      # Database Configuration
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mongo-db
+          property: connectionString
+      
+      # JWT Configuration
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      
+      # Redis Configuration
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          property: connectionString
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          property:host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          property: port
+      - key: REDIS_PASSWORD
+        fromService:
+          type: redis
+          property: password
+      
+      # CORS & API Configuration
+      - key: ALLOWED_ORIGINS
+        value: "https://server-resto-client.on.render.com,http://localhost:3000"
+      - key: APP_URL
+        value: https://server-resto-client.on.render.com
+      - key: API_PREFIX
+        value: /api/v1
+
+# Configuration de la base de données MongoDB
+databases:
+  - name: mongo-db
+    databaseName: server_resto
+    plan: free
+    tag: latest
+    type: mongodb
+
+# Configuration Redis
+services:
+  - type: redis
+    name: redis-cache
+    plan: free
