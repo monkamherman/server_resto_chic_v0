@@ -10,19 +10,14 @@ services:
     startCommand: bun start
     healthCheckPath: /health
     envVars:
-      # Server Configuration
       - key: PORT
         value: 10000
       - key: NODE_ENV
         value: production
-
-      # Database Configuration
       - key: DATABASE_URL
-        fromDatabase:
-          name: mongo-db
-          property: connectionString
-
-      # JWT Configuration
+        value: "mongodb+srv://cesaristos5:D5NfqTbJGXpybjqL@k2ngrouptest.8xgdo.mongodb.net/server_resto?retryWrites=true&w=majority&appName=k2ngrouptest"
+      - key: ALLOWED_ORIGINS
+        value: "https://server-resto-client.onrender.com,http://localhost:3000"
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
@@ -31,42 +26,7 @@ services:
         generateValue: true
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
-
-      # Redis Configuration
-      - key: REDIS_URL
-        fromService:
-          name: redis-cache
-          type: redis
-          property: connectionString
-      - key: REDIS_HOST
-        fromService:
-          name: redis-cache
-          type: redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          name: redis-cache
-          type: redis
-          property: port
-
-      # CORS & API Configuration
-      - key: ALLOWED_ORIGINS
-        value: "https://server-resto-client.on.render.com,http://localhost:3000"
       - key: APP_URL
-        value: https://server-resto-client.on.render.com
+        value: https://server-resto-client.onrender.com
       - key: API_PREFIX
         value: /api/v1
-
-  # Configuration Redis
-  - type: redis
-    name: redis-cache
-    plan: free
-    ipAllowList:
-      - cidr: 0.0.0.0/0
-        comment: "Accès public autorisé - À restreindre en production"
-
-# Configuration de la base de données MongoDB
-databases:
-  - name: mongo-db
-    databaseName: server_resto
-    plan: free
