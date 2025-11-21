@@ -35,19 +35,19 @@ services:
       # Redis Configuration
       - key: REDIS_URL
         fromService:
-          type: redis
+          name: redis-cache
           property: connectionString
       - key: REDIS_HOST
         fromService:
-          type: redis
+          name: redis-cache
           property: host
       - key: REDIS_PORT
         fromService:
-          type: redis
+          name: redis-cache
           property: port
       - key: REDIS_PASSWORD
         fromService:
-          type: redis
+          name: redis-cache
           property: password
 
       # CORS & API Configuration
@@ -58,6 +58,11 @@ services:
       - key: API_PREFIX
         value: /api/v1
 
+  # Configuration Redis
+  - type: redis
+    name: redis-cache
+    plan: free
+
 # Configuration de la base de données MongoDB
 databases:
   - name: mongo-db
@@ -65,9 +70,3 @@ databases:
     plan: free
     tag: latest
     type: mongodb
-
-# Configuration Redis
-servicesdb:
-  - type: redis
-    name: redis-cache
-    plan: free
