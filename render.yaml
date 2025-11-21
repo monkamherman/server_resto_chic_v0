@@ -62,7 +62,8 @@ services:
     name: redis-cache
     plan: free
     ipAllowList:
-      - 0.0.0.0/0  # Autoriser toutes les IP (à restreindre en production)
+      - cidr: 0.0.0.0/0
+        comment: "Accès public autorisé - À restreindre en production"
 
 # Configuration de la base de données MongoDB
 databases:
