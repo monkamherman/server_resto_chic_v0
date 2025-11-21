@@ -68,5 +68,3 @@ databases:
   - name: mongo-db
     databaseName: server_resto
     plan: free
-    tag: latest
-    type: mongodb
