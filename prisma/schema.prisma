@@ -7,6 +7,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Modèle pour les coupons de réduction
+model Coupon {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  code           String   @unique
+  discount_type  String // 'percentage' ou 'fixed'
+  discount_value Float
+  min_order      Float?   @default(0)
+  max_discount   Float?
+  start_date     DateTime
+  end_date       DateTime
+  is_active      Boolean  @default(true)
+  usage_limit    Int?
+  used_count     Int      @default(0)
+  created_at     DateTime @default(now()) @map("createdAt")
+  updated_at     DateTime @updatedAt @map("updatedAt")
+  orders         Order[]  @relation("CouponOrders")
+
+  @@map("coupons")
+}
+
+// Modèle pour les plats
+model Dish {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String?
+  price          Float
+  images         String[] @default([])
+  category       String
+  is_vegetarian  Boolean  @default(false)
+  is_vegan       Boolean  @default(false)
+  is_gluten_free Boolean  @default(false)
+  is_available   Boolean  @default(true)
+  created_at     DateTime @default(now()) @map("createdAt")
+  updated_at     DateTime @updatedAt @map("updatedAt")
+
+  // Relations
+  orderItems     OrderItem[]
+  reviews        Review[]
+  dish_metadatas DishMetadata[]
+  favorites      UserFavorite[]
+
+  @@map("dishes")
+}
+
+// Modèle pour les métadonnées des plats
+model DishMetadata {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  dish_id    String   @db.ObjectId
+  key        String
+  value      String
+  created_at DateTime @default(now()) @map("createdAt")
+  updated_at DateTime @updatedAt @map("updatedAt")
+
+  // Relations
+  dish Dish @relation(fields: [dish_id], references: [id], onDelete: Cascade)
+
+  @@unique([dish_id, key])
+  @@map("dish_metadata")
+}
+
+// Modèle pour les points de fidélité
+model LoyaltyPoints {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id      String   @unique @db.ObjectId
+  points       Int      @default(0)
+  total_earned Int      @default(0) @map("totalEarned")
+  total_spent  Int      @default(0) @map("totalSpent")
+  created_at   DateTime @default(now()) @map("createdAt")
+  updated_at   DateTime @updatedAt @map("updatedAt")
+
+  // Relations
+  user         User                 @relation("UserLoyaltyPoints", fields: [user_id], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+
+  @@map("loyalty_points")
+}
+
 model User {
   id                  String               @id @default(auto()) @map("_id") @db.ObjectId
   fullName            String
@@ -21,123 +98,39 @@ model User {
   otpVerified         Boolean              @default(false)
   otpSentAt           DateTime?
   isActive            Boolean              @default(false)
-  role                String               @default("USER")
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   profile             Profile?
   orders              Order[]
   reviews             Review[]
   reviewVotes         ReviewVote[]
-  loyaltyPoints       LoyaltyPoints?
+  loyaltyPoints       LoyaltyPoints?       @relation("UserLoyaltyPoints")
+  loyaltyPointsId     String?              @map("loyaltyPointsId") @db.ObjectId
   loyaltyTransactions LoyaltyTransaction[]
   reservations        Reservation[]
   securityLogs        SecurityLog[]
   userRewards         UserReward[]
   userRoles           UserRole[]
+  notifications       Notification[]
+  favorites           UserFavorite[]
 
   @@map("users")
 }
 
-model BlacklistedEmail {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  email      String   @unique
-  reason     String?
-  created_at DateTime @default(now())
-  created_by String?  @db.ObjectId
-
-  @@map("blacklisted_emails")
-}
-
-model Coupon {
-  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  code                String   @unique
-  discount_amount     Float?
-  discount_percentage Float?
-  min_order_amount    Float?
-  max_uses            Int?
-  current_uses        Int      @default(0)
-  start_date          DateTime
-  end_date            DateTime
-  is_active           Boolean  @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  orders              Order[]
-
-  @@map("coupons")
-}
-
-model Dish {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  description  String?
-  price        Float
-  image_url    String?
-  category     String
-  is_featured  Boolean     @default(false)
-  is_available Boolean     @default(true)
-  created_at   DateTime    @default(now())
-  updated_at   DateTime    @updatedAt
-  orderItems   OrderItem[]
-  reviews      Review[]
-
-  @@map("dishes")
-}
-
-model LoginAttempt {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  email        String   @unique
-  attempts     Int      @default(1)
-  last_attempt DateTime @default(now())
-  ip_address   String?
-  user_agent   String?
-
-  @@map("login_attempts")
-}
-
-model LoyaltyPoints {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  user_id      String   @unique @db.ObjectId
-  points       Int      @default(0)
-  total_earned Int      @default(0)
-  total_spent  Int      @default(0)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-  user         User     @relation(fields: [user_id], references: [id])
-
-  @@map("loyalty_points")
-}
-
-model LoyaltyReward {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  description     String?
-  points_required Int
-  reward_type     RewardType
-  reward_value    Float?
-  is_active       Boolean      @default(true)
-  created_at      DateTime     @default(now())
-  updated_at      DateTime     @updatedAt
-  userRewards     UserReward[]
-
-  @@map("loyalty_rewards")
-}
-
-enum RewardType {
-  discount_percentage
-  discount_amount
-  free_item
-}
-
 model LoyaltyTransaction {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  user_id          String          @db.ObjectId
-  points           Int
-  transaction_type TransactionType
-  description      String?
-  order_id         String?         @db.ObjectId
-  created_at       DateTime        @default(now())
-  user             User            @relation(fields: [user_id], references: [id])
-  order            Order?          @relation(fields: [order_id], references: [id])
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  user_id           String          @db.ObjectId
+  loyalty_points_id String?         @map("loyaltyPointsId") @db.ObjectId
+  points            Int
+  transaction_type  TransactionType @map("transactionType")
+  description       String?
+  order_id          String?         @map("orderId") @db.ObjectId
+  created_at        DateTime        @default(now()) @map("createdAt")
+
+  // Relations
+  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  loyaltyPoints LoyaltyPoints? @relation(fields: [loyalty_points_id], references: [id], onDelete: Cascade)
+  order         Order?         @relation(fields: [order_id], references: [id], onDelete: SetNull)
 
   @@map("loyalty_transactions")
 }
@@ -149,19 +142,23 @@ enum TransactionType {
 }
 
 model Order {
-  id              String               @id @default(auto()) @map("_id") @db.ObjectId
-  user_id         String?              @db.ObjectId
-  status          String               @default("pending")
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id         String?  @db.ObjectId
+  status          String   @default("pending")
   total_amount    Float
-  coupon_code     String?
-  discount_amount Float                @default(0.00)
+  discount_amount Float    @default(0.00)
   final_amount    Float
-  created_at      DateTime             @default(now())
-  updated_at      DateTime             @updatedAt
-  user            User?                @relation(fields: [user_id], references: [id])
-  coupon          Coupon?              @relation(fields: [coupon_code], references: [code])
-  orderItems      OrderItem[]
-  transactions    LoyaltyTransaction[]
+  created_at      DateTime @default(now()) @map("createdAt")
+  updated_at      DateTime @updatedAt @map("updatedAt")
+  coupon_id       String?  @db.ObjectId
+  coupon          Coupon?  @relation("CouponOrders", fields: [coupon_id], references: [id])
+
+  // Relations
+  user           User?                @relation(fields: [user_id], references: [id])
+  orderItems     OrderItem[]
+  transactions   LoyaltyTransaction[]
+  orderHistories OrderHistory[]
+  couponId       String?              @db.ObjectId
 
   @@map("orders")
 }
@@ -174,9 +171,9 @@ model OrderItem {
   quantity   Int
   price      Float
   subtotal   Float
-  created_at DateTime @default(now())
-  order      Order    @relation(fields: [order_id], references: [id])
-  dish       Dish?    @relation(fields: [dish_id], references: [id])
+  created_at DateTime @default(now()) @map("createdAt")
+  order      Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  dish       Dish?    @relation(fields: [dish_id], references: [id], onDelete: SetNull)
 
   @@map("order_items")
 }
@@ -227,21 +224,33 @@ model Reservation {
 }
 
 model Review {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  user_id        String?      @db.ObjectId
-  dish_id        String?      @db.ObjectId
-  rating         Int
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id        String?  @db.ObjectId
+  dish_id        String?  @db.ObjectId
+  rating         Int // Note de 1 à 5
   comment        String?
-  created_at     DateTime     @default(now())
-  updated_at     DateTime     @updatedAt
-  is_approved    Boolean      @default(false)
-  admin_response String?
-  helpful_count  Int          @default(0)
-  total_votes    Int          @default(0)
-  user           User?        @relation(fields: [user_id], references: [id])
-  dish           Dish?        @relation(fields: [dish_id], references: [id])
-  votes          ReviewVote[]
+  images         String[] @default([]) // Photos du plat partagées par l'utilisateur
+  created_at     DateTime @default(now()) @map("createdAt")
+  is_approved    Boolean  @default(false) @map("isApproved")
+  admin_response String?  @map("adminResponse")
+  helpful_count  Int      @default(0) @map("helpfulCount")
+  total_votes    Int      @default(0) @map("totalVotes")
 
+  // Relations
+  user  User?        @relation(fields: [user_id], references: [id])
+  dish  Dish?        @relation(fields: [dish_id], references: [id], onDelete: Cascade)
+  votes ReviewVote[]
+
+  // Note: La validation de la note sera gérée au niveau de l'application
+  // car Prisma ne supporte pas les contraintes de validation personnalisées
+
+  // Index pour les requêtes fréquentes
+  @@index([dish_id])
+  @@index([user_id])
+  @@index([is_approved])
+  @@index([rating])
+  @@index([created_at])
+  // Contraintes
   @@map("reviews")
 }
 
@@ -249,11 +258,15 @@ model ReviewVote {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   user_id    String   @db.ObjectId
   review_id  String   @db.ObjectId
-  is_helpful Boolean
-  created_at DateTime @default(now())
-  user       User     @relation(fields: [user_id], references: [id])
-  review     Review   @relation(fields: [review_id], references: [id])
+  is_helpful Boolean  @map("isHelpful")
+  created_at DateTime @default(now()) @map("createdAt")
 
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id])
+  review Review @relation(fields: [review_id], references: [id], onDelete: Cascade)
+
+  // Contraintes d'unicité
+  @@unique([user_id, review_id])
   @@map("review_votes")
 }
 
@@ -270,26 +283,119 @@ model SecurityLog {
   @@map("security_logs")
 }
 
+// Modèle pour les récompenses des utilisateurs
 model UserReward {
-  id         String        @id @default(auto()) @map("_id") @db.ObjectId
-  user_id    String        @db.ObjectId
-  reward_id  String        @db.ObjectId
-  is_used    Boolean       @default(false)
-  claimed_at DateTime      @default(now())
-  used_at    DateTime?
-  expires_at DateTime?
-  user       User          @relation(fields: [user_id], references: [id])
-  reward     LoyaltyReward @relation(fields: [reward_id], references: [id])
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String    @db.ObjectId
+  reward_id  String    @db.ObjectId
+  is_used    Boolean   @default(false) @map("isUsed")
+  used_at    DateTime? @map("usedAt")
+  expires_at DateTime? @map("expiresAt")
+  created_at DateTime  @default(now()) @map("createdAt")
 
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id])
+  reward Reward @relation(fields: [reward_id], references: [id])
+
+  // Index pour les requêtes fréquentes
+  @@index([user_id])
+  @@index([reward_id])
+  @@index([is_used])
+  @@index([expires_at])
   @@map("user_rewards")
+}
+
+// Modèle pour les récompenses de fidélité
+model Reward {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?
+  points_required Int      @map("pointsRequired")
+  is_active       Boolean  @default(true) @map("isActive")
+  created_at      DateTime @default(now()) @map("createdAt")
+  updated_at      DateTime @updatedAt @map("updatedAt")
+
+  // Relations
+  user_rewards UserReward[]
+
+  @@map("rewards")
 }
 
 model UserRole {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   user_id    String   @db.ObjectId
   role       String
-  created_at DateTime @default(now())
+  created_at DateTime @default(now()) @map("createdAt")
   user       User     @relation(fields: [user_id], references: [id])
 
+  @@index([user_id])
+  @@index([role])
   @@map("user_roles")
+}
+
+// Types d'événements de notification
+enum NotificationType {
+  ORDER_STATUS_UPDATE
+  RESERVATION_CONFIRMATION
+  LOYALTY_POINTS_ADDED
+  REWARD_UNLOCKED
+  PROMOTION_AVAILABLE
+  ACCOUNT_ALERT
+}
+
+// Modèle pour les notifications utilisateur
+model Notification {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id        String    @db.ObjectId
+  type           String
+  title          String
+  message        String
+  is_read        Boolean   @default(false)
+  related_entity String? // Ex: "order:123", "reservation:456"
+  created_at     DateTime  @default(now()) @map("createdAt")
+  read_at        DateTime? @map("readAt")
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([type])
+  @@index([is_read])
+  @@index([created_at])
+  @@map("notifications")
+}
+
+// Modèle pour les favoris utilisateur
+model UserFavorite {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user_id    String   @db.ObjectId
+  dish_id    String   @db.ObjectId
+  created_at DateTime @default(now()) @map("createdAt")
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  dish Dish @relation(fields: [dish_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, dish_id])
+  @@index([user_id])
+  @@index([dish_id])
+  @@map("user_favorites")
+}
+
+// Modèle pour l'historique des commandes
+model OrderHistory {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  order_id   String   @db.ObjectId
+  status     String
+  notes      String?
+  created_by String? // ID de l'utilisateur ou du système qui a effectué le changement
+  created_at DateTime @default(now()) @map("createdAt")
+
+  // Relations
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@index([order_id])
+  @@index([status])
+  @@index([created_at])
+  @@map("order_history")
 }
