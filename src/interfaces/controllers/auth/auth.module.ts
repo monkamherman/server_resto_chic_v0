@@ -18,12 +18,15 @@ import { SecurityModule } from "../../../infrastructure/security/security.module
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>("jwt.secret"),
-        signOptions: {
-          expiresIn: configService.get<string>("jwt.expiresIn"),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const jwtConfig = configService.get('jwt');
+        return {
+          secret: jwtConfig.secret,
+          signOptions: {
+            expiresIn: jwtConfig.signOptions.expiresIn,
+          },
+        };
+      },
     }),
     SecurityModule,
   ],

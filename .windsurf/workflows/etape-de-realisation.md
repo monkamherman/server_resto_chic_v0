@@ -1,6 +1,7 @@
 ---
-description: etape pour la realisation d'une app  restaurant moderne : découverte → réservation → commande → paiement → fidélisation → feedback.
+description: Étapes de réalisation du backend pour une application de restaurant moderne
 auto_execution_mode: 1
+updated: 2025-11-26
 ---
 
 # PROJET BACKEND RESTAURANT - ARCHITECTURE & IMPLÉMENTATION
@@ -27,9 +28,35 @@ Je développe une application backend complète pour un restaurant avec les spé
 - Avis et notations
 - Logs de sécurité et monitoring
 
+## ÉTAT ACTUEL DU PROJET
+
+### ✅ TÂCHES TERMINÉES
+- [x] Configuration initiale du projet Node.js/TypeScript
+- [x] Configuration de Prisma avec MongoDB
+- [x] Mise en place de la structure de base du projet
+- [x] Configuration du serveur Express
+- [x] Intégration de Redis pour le rate limiting
+- [x] Configuration de base de l'authentification
+
+### 🚧 EN COURS
+- [ ] Implémentation du système d'authentification complète
+- [ ] Développement des modèles de données principaux
+- [ ] Mise en place des contrôleurs API
+
+### 📋 PROCHAINES ÉTAPES
+- [ ] Finalisation de l'authentification (JWT, refresh tokens)
+- [ ] Implémentation des modèles de données restants
+- [ ] Développement des services métier
+- [ ] Mise en place des validations de données
+- [ ] Implémentation des tests unitaires
+- [ ] Configuration du système de logs
+- [ ] Mise en place du système de notifications
+- [ ] Documentation de l'API (Swagger/OpenAPI)
+- [ ] Configuration du déploiement
+
 ## MISSION
 
-Agis comme un architecte logiciel senior et développeur full-stack. Guide-moi dans l'implémentation complète de ce backend avec les bonnes pratiques et l'architecture la plus adaptée.
+Guide de développement du backend avec les meilleures pratiques et une architecture solide.
 
 ## ARCHITECTURE DEMANDÉE
 
