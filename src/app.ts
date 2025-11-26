@@ -11,6 +11,9 @@ import { InversifyExpressServer } from "inversify-express-utils";
 import morgan from "morgan";
 
 // Import des services
+import { RedisService } from "@infrastructure/cache/redis.service";
+import { RateLimitMiddleware } from "@infrastructure/middlewares/rate-limit.middleware";
+import Redis from 'ioredis';
 import { AuthService } from "./application/services/AuthService";
 import { IAuthService } from "./application/services/IAuthService";
 import { IProfileService } from "./application/services/IProfileService";
@@ -113,12 +116,11 @@ server.setConfig((app: Application) => {
     })
   );
 
-
   // Compression
   app.use(compression());
 
   // Logging
-  if (process.env.NODE_ENV !== 'test') {
+  if (process.env.NODE_ENV !== "test") {
     // Utilisation d'une fonction wrapper typée explicitement
     const morganMiddleware: express.RequestHandler = morgan("combined");
     app.use(morganMiddleware);
@@ -189,6 +191,25 @@ server.setErrorConfig((app: Application) => {
 
 // Création de l'application Express
 const app = server.build();
+
+// Instanciation du client Redis
+// ... autres imports ...
+
+const redisClient = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  password: process.env.REDIS_PASSWORD || undefined,
+});
+
+// Instanciation du service Redis
+const redisService = new RedisService(redisClient);
+
+// Application du middleware de rate limiting
+app.use(
+  new RateLimitMiddleware(redisService).use.bind(
+    new RateLimitMiddleware(redisService)
+  )
+);
 
 // Démarrer le serveur
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
