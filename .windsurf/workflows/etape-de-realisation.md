@@ -36,12 +36,28 @@ Je développe une application backend complète pour un restaurant avec les spé
 - [x] Mise en place de la structure de base du projet
 - [x] Configuration du serveur Express
 - [x] Intégration de Redis pour le rate limiting
-- [x] Configuration de base de l'authentification
+- [x] Configuration de l'authentification JWT
+  - [x] Mise en place des DTOs de validation
+  - [x] Configuration sécurisée des tokens
+  - [x] Documentation Swagger des endpoints
+- [x] Implémentation du modèle Dish (Plats)
+  - [x] DTOs de création et mise à jour
+  - [x] Service avec logique métier
+  - [x] Contrôleur avec endpoints RESTful
+  - [x] Documentation Swagger complète
 
 ### 🚧 EN COURS
-- [ ] Implémentation du système d'authentification complète
+- [ ] Tests des endpoints d'authentification
+  - [ ] Inscription
+  - [ ] Connexion
+  - [ ] Rafraîchissement du token
+  - [ ] Déconnexion
 - [ ] Développement des modèles de données principaux
-- [ ] Mise en place des contrôleurs API
+  - [x] Plats (Dish)
+  - [ ] Catégories
+  - [ ] Commandes (Order)
+  - [ ] Utilisateurs (User)
+- [ ] Tests des endpoints de gestion des plats
 
 ### 📋 PROCHAINES ÉTAPES
 - [ ] Finalisation de l'authentification (JWT, refresh tokens)

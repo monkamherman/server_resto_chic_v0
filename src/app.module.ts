@@ -4,8 +4,9 @@ import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { DishModule } from "./domain/dish/dish.module";
 import { FormateursModule } from "./domain/formateurs/formateurs.module";
+import { DishModule } from "./domain/dish/dish.module";
+import { DishControllersModule } from "./interfaces/controllers/dish/dish-controllers.module";
 import { OrderModule } from "./domain/order/order.module";
 import { UsersModule } from "./domain/users/users.module";
 import { RedisModule } from "./infrastructure/cache/redis.module";
@@ -72,6 +73,9 @@ import { MetricsMiddleware } from "./middlewares/metrics.middleware";
     SecurityModule,
     UserModule,
     AuthModule,
+    // Contrôleurs
+    DishModule,
+    DishControllersModule,
   ],
   controllers: [AppController],
   providers: [
