@@ -4,8 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  // L'URL de la base de données est maintenant gérée dans prisma.config.ts
-  // Voir : https://pris.ly/d/config-datasource
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -293,19 +292,4 @@ model UserRole {
   user       User     @relation(fields: [user_id], references: [id])
 
   @@map("user_roles")
-}
-
-model Formateur {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  prenom         String
-  nom            String
-  email          String   @unique
-  telephone      String?
-  specialites    String[]
-  disponibilites String[]
-  statut         String   @default("DISPONIBLE")
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-
-  @@map("formateurs")
 }

@@ -4,8 +4,14 @@ import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { DishModule } from "./domain/dish/dish.module";
+import { FormateursModule } from "./domain/formateurs/formateurs.module";
+import { OrderModule } from "./domain/order/order.module";
+import { UsersModule } from "./domain/users/users.module";
+import { RedisModule } from "./infrastructure/cache/redis.module";
 import configuration from "./infrastructure/config/configuration";
 import { PersistenceModule } from "./infrastructure/persistence/persistence.module";
+import { PrismaModule } from "./infrastructure/persistence/prisma/prisma.module";
 import { JwtAuthGuard } from "./infrastructure/security/guards/jwt-auth.guard";
 import { RolesGuard } from "./infrastructure/security/guards/roles.guard";
 import { SecurityModule } from "./infrastructure/security/security.module";
@@ -13,11 +19,6 @@ import { AuthModule } from "./interfaces/controllers/auth/auth.module";
 import { UserModule } from "./interfaces/controllers/user/user.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
-import { OrderModule } from "./domain/order/order.module";
-import { PrismaModule } from "./infrastructure/persistence/prisma/prisma.module";
-import { UsersModule } from "./domain/users/users.module";
-import { DishModule } from "./domain/dish/dish.module";
-import { FormateursModule } from "./domain/formateurs/formateurs.module";
 
 @Module({
   imports: [
@@ -39,12 +40,13 @@ import { FormateursModule } from "./domain/formateurs/formateurs.module";
     // Persistence (Prisma)
     PersistenceModule,
     PrismaModule,
-    
+
     // Modules de domaine
     OrderModule,
     UsersModule,
     DishModule,
     FormateursModule,
+    RedisModule,
 
     // Métriques de l'application
     MetricsModule,
