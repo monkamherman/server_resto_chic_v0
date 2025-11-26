@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DishModule } from '../../../../domain/dish/dish.module';
+import { DishModule } from '../../../domain/dish/dish.module';
 import { DishController } from './dish.controller';
 import { CreateDishController } from './create-dish.controller';
 import { GetDishController } from './get-dish.controller';

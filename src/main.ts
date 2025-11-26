@@ -42,7 +42,7 @@ const corsOptions: cors.CorsOptions = {
 // Configuration des middlewares
 app.use(cors(corsOptions));
 app.use(helmet());
-app.use(compression());
+app.use(compression()); // Compression des réponses
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

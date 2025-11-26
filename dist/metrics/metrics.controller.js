@@ -19,11 +19,11 @@ let MetricsController = class MetricsController {
     async getMetrics(res) {
         try {
             const { contentType, metrics } = await (0, metrics_1.getMetrics)();
-            res.set('Content-Type', contentType);
+            res.set("Content-Type", contentType);
             res.send(metrics);
         }
         catch (error) {
-            res.status(500).send('Erreur lors de la récupération des métriques');
+            res.status(500).send("Erreur lors de la récupération des métriques");
         }
     }
 };
@@ -36,6 +36,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MetricsController.prototype, "getMetrics", null);
 exports.MetricsController = MetricsController = __decorate([
-    (0, common_1.Controller)('metrics')
+    (0, common_1.Controller)("metrics")
 ], MetricsController);
 //# sourceMappingURL=metrics.controller.js.map

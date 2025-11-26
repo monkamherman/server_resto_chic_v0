@@ -2,6 +2,8 @@ import { Dish } from '../entities/dish.entity';
 import { CreateDishDto } from '../dtos/create-dish.dto';
 import { UpdateDishDto } from '../dtos/update-dish.dto';
 
+export const IDishRepository = Symbol('IDishRepository');
+
 export interface IDishRepository {
   // Create a new dish
   create(data: CreateDishDto): Promise<Dish>;
@@ -18,6 +20,9 @@ export interface IDishRepository {
   // Delete a dish
   delete(id: string): Promise<boolean>;
   
-  // Check if a dish with the given name already exists
+  // Find dishes by category
+  findByCategory(category: string): Promise<Dish[]>;
+  
+  // Check if a dish with the given name exists
   exists(name: string): Promise<boolean>;
 }

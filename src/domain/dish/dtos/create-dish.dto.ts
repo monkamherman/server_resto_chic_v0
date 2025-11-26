@@ -1,19 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+// import { IsString, IsNotEmpty, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateDishDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsOptional()
+  name!: string;
   description?: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
-
-  @IsBoolean()
-  @IsOptional()
-  isActive: boolean = true;
+  price!: number;
+  category!: string;
+  imageUrl?: string;
+  isAvailable: boolean = true;
 }

@@ -1,7 +1,8 @@
-import type { Express, Request, Response } from 'express';
+import type { Express, Request, Response, NextFunction } from 'express';
 import swaggerJSDoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
+import { serve, setup } from 'swagger-ui-express';
 import { envs } from './core/config/env';
+import { RequestHandler } from 'express';
 
 // Configuration Swagger
 export const swaggerOptions: swaggerJSDoc.Options = {
@@ -36,9 +37,13 @@ const swaggerUiOptions = {
 
 // Middleware pour gérer la documentation Swagger
 export const setupSwagger = (app: Express): void => {
-  // Route pour la documentation Swagger UI
-  const swaggerUiMiddleware = swaggerUi.setup(swaggerSpec, swaggerUiOptions);
-  app.use('/api-docs', swaggerUi.serve, swaggerUiMiddleware);
+  // Configuration de la documentation Swagger UI
+  const swaggerUiMiddleware: RequestHandler = (req, res, next) => {
+    return setup(swaggerSpec, swaggerUiOptions)(req, res, next);
+  };
+
+  // Configuration des routes
+  app.use('/api-docs', serve, swaggerUiMiddleware);
 
   // Redirection de la racine vers la documentation
   app.get('/', (req: Request, res: Response) => {

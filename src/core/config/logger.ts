@@ -1,6 +1,6 @@
 import winston, { createLogger, format, transports } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { envs } from './env';
+import { envs, CONNECTION_STRING } from './env';
 import { MongoDB } from 'winston-mongodb';
 
 const { colorize, align } = winston.format;
@@ -35,7 +35,7 @@ const errorTransport = createTransport('errors', 'error', 30);
 
 // Configuration du transporteur MongoDB
 const mongoTransport = new MongoDB({
-    db: envs.DATABASE_URL, // URL de connexion à la base de données
+    db: CONNECTION_STRING, // URL de connexion à la base de données
     options: {
         maxPoolSize: 200, // nombre de pool de connion simultanée sur mongo
     }, 

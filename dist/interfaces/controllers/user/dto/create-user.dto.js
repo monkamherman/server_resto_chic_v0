@@ -8,12 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateUserDto = void 0;
+const enums_1 = require("@domain/users/enums");
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-const enums_1 = require("../../../../../domain/users/enums");
 class CreateUserDto {
     fullName;
     email;
@@ -50,6 +49,6 @@ __decorate([
     (0, swagger_1.ApiProperty)({ enum: enums_1.UserRole, default: enums_1.UserRole.USER }),
     (0, class_validator_1.IsEnum)(enums_1.UserRole),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", typeof (_a = typeof enums_1.UserRole !== "undefined" && enums_1.UserRole) === "function" ? _a : Object)
+    __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
 //# sourceMappingURL=create-user.dto.js.map

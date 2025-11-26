@@ -1,39 +1,89 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../infrastructure/persistence/prisma/prisma.service';
+import { PrismaService } from '@infrastructure/persistence/prisma/prisma.service';
 import { IDishRepository } from './IDishRepository';
 import { Dish } from '../entities/dish.entity';
 import { CreateDishDto } from '../dtos/create-dish.dto';
 import { UpdateDishDto } from '../dtos/update-dish.dto';
 
 @Injectable()
-export class DishRepository implements IDishRepository {
+export class PrismaDishRepository implements IDishRepository {
   constructor(private prisma: PrismaService) {}
 
+  private toDomain(prismaDish: {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number | string;
+    category: string;
+    image_url: string | null;
+    is_available: boolean;
+    created_at: Date;
+    updated_at: Date;
+  }): Dish {
+    return {
+      id: prismaDish.id,
+      name: prismaDish.name,
+      description: prismaDish.description || undefined,
+      price: typeof prismaDish.price === 'string' ? parseFloat(prismaDish.price) : prismaDish.price,
+      category: prismaDish.category,
+      imageUrl: prismaDish.image_url || undefined,
+      isAvailable: prismaDish.is_available,
+      createdAt: prismaDish.created_at,
+      updatedAt: prismaDish.updated_at,
+    };
+  }
+
   async create(data: CreateDishDto): Promise<Dish> {
-    return this.prisma.dish.create({
+    const createdDish = await this.prisma.dish.create({
       data: {
-        ...data,
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        category: data.category,
+        image_url: data.imageUrl,
+        is_available: data.isAvailable,
       },
     });
+    return this.toDomain(createdDish);
   }
 
   async findById(id: string): Promise<Dish | null> {
-    return this.prisma.dish.findUnique({
+    const dish = await this.prisma.dish.findUnique({
       where: { id },
     });
+    return dish ? this.toDomain(dish) : null;
   }
 
   async findAll(): Promise<Dish[]> {
-    return this.prisma.dish.findMany({
-      where: { isActive: true },
+    const dishes = await this.prisma.dish.findMany({
+      where: { is_available: true },
     });
+    return dishes.map(dish => this.toDomain(dish));
   }
 
   async update(id: string, data: UpdateDishDto): Promise<Dish | null> {
-    return this.prisma.dish.update({
+    const updateData: {
+      name?: string;
+      description?: string | null;
+      price?: number;
+      category?: string;
+      image_url?: string | null;
+      is_available?: boolean;
+    } = {};
+    
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.price !== undefined) updateData.price = parseFloat(data.price.toString());
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
+    if (data.isAvailable !== undefined) updateData.is_available = data.isAvailable;
+    
+    const updatedDish = await this.prisma.dish.update({
       where: { id },
-      data,
+      data: updateData,
     });
+    
+    return updatedDish ? this.toDomain(updatedDish) : null;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -52,5 +102,15 @@ export class DishRepository implements IDishRepository {
       where: { name },
     });
     return count > 0;
+  }
+
+  async findByCategory(category: string): Promise<Dish[]> {
+    const dishes = await this.prisma.dish.findMany({
+      where: { 
+        category,
+        is_available: true 
+      },
+    });
+    return dishes.map(dish => this.toDomain(dish));
   }
 }

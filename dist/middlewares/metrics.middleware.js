@@ -12,13 +12,13 @@ const metrics_1 = require("../metrics/metrics");
 let MetricsMiddleware = class MetricsMiddleware {
     use(req, res, next) {
         // Ignorer les requêtes vers les endpoints de métriques et de santé
-        if (req.path === '/metrics' || req.path === '/health') {
+        if (req.path === "/metrics" || req.path === "/health") {
             return next();
         }
         const start = process.hrtime();
         const path = req.route?.path || req.path;
         // Incrémenter le compteur de requêtes
-        res.on('finish', () => {
+        res.on("finish", () => {
             const duration = process.hrtime(start);
             const durationInMs = (duration[0] * 1e9 + duration[1]) / 1e6;
             // Enregistrer la durée de la requête

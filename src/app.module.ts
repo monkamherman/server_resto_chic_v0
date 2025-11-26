@@ -14,7 +14,10 @@ import { UserModule } from "./interfaces/controllers/user/user.module";
 import { MetricsModule } from "./metrics/metrics.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { OrderModule } from "./domain/order/order.module";
-import { PrismaModule } from "./infrastructure/prisma/prisma.module";
+import { PrismaModule } from "./infrastructure/persistence/prisma/prisma.module";
+import { UsersModule } from "./domain/users/users.module";
+import { DishModule } from "./domain/dish/dish.module";
+import { FormateursModule } from "./domain/formateurs/formateurs.module";
 
 @Module({
   imports: [
@@ -39,6 +42,9 @@ import { PrismaModule } from "./infrastructure/prisma/prisma.module";
     
     // Modules de domaine
     OrderModule,
+    UsersModule,
+    DishModule,
+    FormateursModule,
 
     // Métriques de l'application
     MetricsModule,

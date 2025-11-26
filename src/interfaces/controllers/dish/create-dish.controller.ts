@@ -1,8 +1,8 @@
 import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { DishService } from '../../../../domain/dish/services/dish.service';
-import { CreateDishDto } from '../../../../domain/dish/dtos/create-dish.dto';
-import { Dish } from '../../../../domain/dish/entities/dish.entity';
+import { DishService } from '../../../domain/dish/services/dish.service';
+import { CreateDishDto } from '../../../domain/dish/dtos/create-dish.dto';
+import { Dish } from '../../../domain/dish/entities/dish.entity';
 
 @ApiTags('dishes')
 @Controller('dishes')

@@ -25,6 +25,11 @@ const auth_module_1 = require("./interfaces/controllers/auth/auth.module");
 const user_module_1 = require("./interfaces/controllers/user/user.module");
 const metrics_module_1 = require("./metrics/metrics.module");
 const metrics_middleware_1 = require("./middlewares/metrics.middleware");
+const order_module_1 = require("./domain/order/order.module");
+const prisma_module_1 = require("./infrastructure/persistence/prisma/prisma.module");
+const users_module_1 = require("./domain/users/users.module");
+const dish_module_1 = require("./domain/dish/dish.module");
+const formateurs_module_1 = require("./domain/formateurs/formateurs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,6 +51,12 @@ exports.AppModule = AppModule = __decorate([
             ]),
             // Persistence (Prisma)
             persistence_module_1.PersistenceModule,
+            prisma_module_1.PrismaModule,
+            // Modules de domaine
+            order_module_1.OrderModule,
+            users_module_1.UsersModule,
+            dish_module_1.DishModule,
+            formateurs_module_1.FormateursModule,
             // Métriques de l'application
             metrics_module_1.MetricsModule,
             // Base de données
@@ -81,7 +92,7 @@ exports.AppModule = AppModule = __decorate([
                 useClass: roles_guard_1.RolesGuard,
             },
             {
-                provide: 'METRICS_MIDDLEWARE',
+                provide: "METRICS_MIDDLEWARE",
                 useClass: metrics_middleware_1.MetricsMiddleware,
             },
             {

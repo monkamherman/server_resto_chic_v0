@@ -8,14 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtRefreshStrategy = void 0;
 const passport_jwt_1 = require("passport-jwt");
 const passport_1 = require("@nestjs/passport");
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const user_service_1 = require("../../../../application/use-cases/user/user.service");
+const user_service_1 = require("@application/use-cases/user/user.service");
 let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, "jwt-refresh") {
     userService;
     configService;
@@ -50,6 +49,7 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
 exports.JwtRefreshStrategy = JwtRefreshStrategy;
 exports.JwtRefreshStrategy = JwtRefreshStrategy = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _a : Object, config_1.ConfigService])
+    __metadata("design:paramtypes", [user_service_1.UserService,
+        config_1.ConfigService])
 ], JwtRefreshStrategy);
 //# sourceMappingURL=jwt-refresh.strategy.js.map

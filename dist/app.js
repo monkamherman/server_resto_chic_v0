@@ -4,39 +4,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
+// Ce doit être la première instruction
 require("reflect-metadata");
 const compression_1 = __importDefault(require("compression"));
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const inversify_1 = require("inversify");
+const inversify_binding_decorators_1 = require("inversify-binding-decorators");
 const inversify_express_utils_1 = require("inversify-express-utils");
 const morgan_1 = __importDefault(require("morgan"));
+// Import des services
+const AuthService_1 = require("./application/services/AuthService");
+const ProfileService_1 = require("./application/services/ProfileService");
 const UserService_1 = require("./application/services/UserService");
 const UserRepository_1 = require("./infrastructure/repositories/UserRepository");
-const ProfileService_1 = require("./application/services/ProfileService");
-const AuthService_1 = require("./application/services/AuthService");
-const injection_types_1 = require("./shared/constants/injection.types");
-require("./controllers"); // Import des contrôleurs pour l'enregistrement automatique
-// Création du conteneur Inversify
-const container = new inversify_1.Container();
+const tokens_1 = require("./shared/constants/tokens");
+// Import des contrôleurs (doit être fait après reflect-metadata)
+require("./controllers");
+// Création et configuration du conteneur Inversify
+const container = new inversify_1.Container({ defaultScope: "Singleton" });
 // Enregistrement des dépendances
-container
-    .bind(injection_types_1.TYPES.UserRepository)
-    .to(UserRepository_1.UserRepository)
-    .inSingletonScope();
-container.bind(injection_types_1.TYPES.UserService).to(UserService_1.UserService).inSingletonScope();
-container
-    .bind(injection_types_1.TYPES.ProfileService)
-    .to(ProfileService_1.ProfileService)
-    .inSingletonScope();
-container
-    .bind(injection_types_1.TYPES.AuthService)
-    .to(AuthService_1.AuthService)
-    .inSingletonScope();
+container.bind(tokens_1.TYPES.UserRepository).to(UserRepository_1.UserRepository);
+container.bind(tokens_1.TYPES.UserService).to(UserService_1.UserService);
+container.bind(tokens_1.TYPES.ProfileService).to(ProfileService_1.ProfileService);
+container.bind(tokens_1.TYPES.AuthService).to(AuthService_1.AuthService);
+// Charge les décorateurs @provide
+container.load((0, inversify_binding_decorators_1.buildProviderModule)());
 // Les contrôleurs sont automatiquement liés par inversify-express-utils
 // Configuration d'Inversify Express Server
-const server = new inversify_express_utils_1.InversifyExpressServer(container, null, { rootPath: "/api" });
+const server = new inversify_express_utils_1.InversifyExpressServer(container, null, {
+    rootPath: "/api", // Préfixe d'API global
+}, null, null, false // Désactive le mode par défaut qui peut causer des problèmes
+);
 // Configuration des middlewares
 server.setConfig((app) => {
     // Middleware pour parser le JSON
@@ -57,40 +57,44 @@ server.setConfig((app) => {
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
         credentials: true,
-        optionsSuccessStatus: 200,
     };
     app.use((0, cors_1.default)(corsOptions));
     // Sécurité
-    app.use((0, helmet_1.default)({
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: ["'self'"],
-                styleSrc: ["'self'"],
-                imgSrc: ["'self'"],
-                fontSrc: ["'self'"],
-            },
+    // Configuration de la sécurité avec Helmet
+    app.use((0, helmet_1.default)());
+    // Configuration CSP séparée pour un meilleur typage
+    app.use(helmet_1.default.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https://*"],
         },
-        hsts: {
-            maxAge: 63072000, // 2 ans
-            includeSubDomains: true,
-            preload: true,
-        },
-        frameguard: { action: "deny" },
-        hidePoweredBy: true,
-        noSniff: true,
-        referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-        xssFilter: true,
+    }));
+    // Autres en-têtes de sécurité
+    app.use(helmet_1.default.hsts({
+        maxAge: 63072000, // 2 ans
+        includeSubDomains: true,
+        preload: true,
+    }));
+    // Configuration de sécurité avancée
+    app.use(helmet_1.default.frameguard({ action: "deny" }));
+    app.use(helmet_1.default.hidePoweredBy());
+    app.use(helmet_1.default.noSniff());
+    // Configuration simplifiée de la politique de référence
+    app.use(helmet_1.default.referrerPolicy({
+        policy: "strict-origin-when-cross-origin",
     }));
     // Compression
     app.use((0, compression_1.default)());
     // Logging
-    if (process.env.NODE_ENV !== "test") {
-        app.use((0, morgan_1.default)("combined"));
+    if (process.env.NODE_ENV !== 'test') {
+        // Utilisation d'une fonction wrapper typée explicitement
+        const morganMiddleware = (0, morgan_1.default)("combined");
+        app.use(morganMiddleware);
     }
     // Fichiers statiques
     app.use(express_1.default.static("public"));
-    // Les routes sont gérées automatiquement par Inversify via les décorateurs @controller
 });
 // Configuration de la gestion des erreurs
 server.setErrorConfig((app) => {

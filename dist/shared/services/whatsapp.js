@@ -4,7 +4,8 @@
  * À remplacer par une implémentation réelle avec l'API WhatsApp Business
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateWhatsAppNumber = exports.sendWhatsAppMessage = void 0;
+exports.sendWhatsAppMessage = sendWhatsAppMessage;
+exports.validateWhatsAppNumber = validateWhatsAppNumber;
 /**
  * Envoie un message WhatsApp
  */
@@ -46,7 +47,6 @@ async function sendWhatsAppMessage(phoneNumber, message) {
         };
     }
 }
-exports.sendWhatsAppMessage = sendWhatsAppMessage;
 /**
  * Vérifie si un numéro est valide pour WhatsApp
  */
@@ -61,5 +61,4 @@ async function validateWhatsAppNumber(phoneNumber) {
         return false;
     }
 }
-exports.validateWhatsAppNumber = validateWhatsAppNumber;
 //# sourceMappingURL=whatsapp.js.map

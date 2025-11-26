@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../../infrastructure/persistence/prisma/prisma.module';
+import { PrismaModule } from '@infrastructure/persistence/prisma/prisma.module';
 import { DishService } from './services/dish.service';
-import { DishRepository } from './repositories/DishRepository';
+import { PrismaDishRepository } from './repositories/prisma/DishRepository';
 import { IDishRepository } from './repositories/IDishRepository';
 
 @Module({
@@ -10,7 +10,7 @@ import { IDishRepository } from './repositories/IDishRepository';
     DishService,
     {
       provide: IDishRepository,
-      useClass: DishRepository,
+      useClass: PrismaDishRepository,
     },
   ],
   exports: [DishService],

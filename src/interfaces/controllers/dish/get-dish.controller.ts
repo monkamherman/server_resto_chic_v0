@@ -1,7 +1,7 @@
 import { Controller, Get, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { DishService } from '../../../../domain/dish/services/dish.service';
-import { Dish } from '../../../../domain/dish/entities/dish.entity';
+import { DishService } from '../../../domain/dish/services/dish.service';
+import { Dish } from '../../../domain/dish/entities/dish.entity';
 
 @ApiTags('dishes')
 @Controller('dishes')
