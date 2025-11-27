@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@infrastructure/persistence/prisma/prisma.service';
-import { IDishRepository } from './IDishRepository';
-import { Dish } from '../entities/dish.entity';
-import { CreateDishDto } from '../dtos/create-dish.dto';
-import { UpdateDishDto } from '../dtos/update-dish.dto';
+import { PrismaService } from "@infrastructure/persistence/prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
+import { CreateDishDto } from "../dtos/create-dish.dto";
+import { UpdateDishDto } from "../dtos/update-dish.dto";
+import { Dish } from "../entities/dish.entity";
+import { IDishRepository } from "./IDishRepository";
 
 @Injectable()
 export class PrismaDishRepository implements IDishRepository {
@@ -13,10 +13,14 @@ export class PrismaDishRepository implements IDishRepository {
     id: string;
     name: string;
     description: string | null;
-    price: number | string;
+    price: number;
+    images: string[];
     category: string;
-    image_url: string | null;
+    is_vegetarian: boolean;
+    is_vegan: boolean;
+    is_gluten_free: boolean;
     is_available: boolean;
+    average_rating: number | null;
     created_at: Date;
     updated_at: Date;
   }): Dish {
@@ -24,10 +28,17 @@ export class PrismaDishRepository implements IDishRepository {
       id: prismaDish.id,
       name: prismaDish.name,
       description: prismaDish.description || undefined,
-      price: typeof prismaDish.price === 'string' ? parseFloat(prismaDish.price) : prismaDish.price,
+      price:
+        typeof prismaDish.price === "string"
+          ? parseFloat(prismaDish.price)
+          : prismaDish.price,
       category: prismaDish.category,
-      imageUrl: prismaDish.image_url || undefined,
+      imageUrl: prismaDish.images?.[0] || undefined,
       isAvailable: prismaDish.is_available,
+      isVegetarian: prismaDish.is_vegetarian,
+      isVegan: prismaDish.is_vegan,
+      isGlutenFree: prismaDish.is_gluten_free,
+      averageRating: prismaDish.average_rating || undefined,
       createdAt: prismaDish.created_at,
       updatedAt: prismaDish.updated_at,
     };
@@ -40,7 +51,7 @@ export class PrismaDishRepository implements IDishRepository {
         description: data.description,
         price: data.price,
         category: data.category,
-        image_url: data.imageUrl,
+images: data.imageUrl ? [data.imageUrl] : [],
         is_available: data.isAvailable,
       },
     });
@@ -58,7 +69,7 @@ export class PrismaDishRepository implements IDishRepository {
     const dishes = await this.prisma.dish.findMany({
       where: { is_available: true },
     });
-    return dishes.map(dish => this.toDomain(dish));
+    return dishes.map((dish) => this.toDomain(dish));
   }
 
   async update(id: string, data: UpdateDishDto): Promise<Dish | null> {
@@ -70,19 +81,22 @@ export class PrismaDishRepository implements IDishRepository {
       image_url?: string | null;
       is_available?: boolean;
     } = {};
-    
+
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.price !== undefined) updateData.price = parseFloat(data.price.toString());
+    if (data.description !== undefined)
+      updateData.description = data.description;
+    if (data.price !== undefined)
+      updateData.price = parseFloat(data.price.toString());
     if (data.category !== undefined) updateData.category = data.category;
     if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
-    if (data.isAvailable !== undefined) updateData.is_available = data.isAvailable;
-    
+    if (data.isAvailable !== undefined)
+      updateData.is_available = data.isAvailable;
+
     const updatedDish = await this.prisma.dish.update({
       where: { id },
       data: updateData,
     });
-    
+
     return updatedDish ? this.toDomain(updatedDish) : null;
   }
 
@@ -106,11 +120,11 @@ export class PrismaDishRepository implements IDishRepository {
 
   async findByCategory(category: string): Promise<Dish[]> {
     const dishes = await this.prisma.dish.findMany({
-      where: { 
+      where: {
         category,
-        is_available: true 
+        is_available: true,
       },
     });
-    return dishes.map(dish => this.toDomain(dish));
+    return dishes.map((dish) => this.toDomain(dish));
   }
 }

@@ -1,6 +1,10 @@
+import 'reflect-metadata';
 import { app } from '../src/app';
 import { createConnection, getConnection } from 'typeorm';
 import { config } from 'dotenv';
+
+// Configuration des variables d'environnement pour les tests
+process.env.NODE_ENV = 'test';
 
 // Charger les variables d'environnement
 config({ path: '.env.test' });

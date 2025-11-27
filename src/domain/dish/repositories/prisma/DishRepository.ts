@@ -14,9 +14,13 @@ export class PrismaDishRepository implements IDishRepository {
     name: string;
     description: string | null;
     price: number | string;
+    images: string[];
     category: string;
-    image_url: string | null;
+    is_vegetarian: boolean;
+    is_vegan: boolean;
+    is_gluten_free: boolean;
     is_available: boolean;
+    average_rating: number | null;
     created_at: Date;
     updated_at: Date;
   }): Dish {
@@ -26,8 +30,12 @@ export class PrismaDishRepository implements IDishRepository {
       description: prismaDish.description || undefined,
       price: typeof prismaDish.price === 'string' ? parseFloat(prismaDish.price) : prismaDish.price,
       category: prismaDish.category,
-      imageUrl: prismaDish.image_url || undefined,
+      imageUrl: prismaDish.images?.[0] || undefined,
       isAvailable: prismaDish.is_available,
+      isVegetarian: prismaDish.is_vegetarian,
+      isVegan: prismaDish.is_vegan,
+      isGlutenFree: prismaDish.is_gluten_free,
+      averageRating: prismaDish.average_rating || undefined,
       createdAt: prismaDish.created_at,
       updatedAt: prismaDish.updated_at,
     };
@@ -40,7 +48,7 @@ export class PrismaDishRepository implements IDishRepository {
         description: data.description,
         price: data.price,
         category: data.category,
-        image_url: data.imageUrl,
+        images: data.imageUrl ? [data.imageUrl] : [],
         is_available: data.isAvailable,
       },
     });
@@ -67,7 +75,7 @@ export class PrismaDishRepository implements IDishRepository {
       description?: string | null;
       price?: number;
       category?: string;
-      image_url?: string | null;
+      images?: string[];
       is_available?: boolean;
     }
     
@@ -77,7 +85,7 @@ export class PrismaDishRepository implements IDishRepository {
     if (data.description !== undefined) updateData.description = data.description;
     if (data.price !== undefined) updateData.price = parseFloat(data.price.toString());
     if (data.category !== undefined) updateData.category = data.category;
-    if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
+    if (data.imageUrl !== undefined) updateData.images = data.imageUrl ? [data.imageUrl] : [];
     if (data.isAvailable !== undefined) updateData.is_available = data.isAvailable;
     
     const updatedDish = await this.prisma.dish.update({
