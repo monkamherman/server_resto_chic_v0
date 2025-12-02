@@ -9,6 +9,8 @@ import { DishModule } from "./domain/dish/dish.module";
 import { DishControllersModule } from "./interfaces/controllers/dish/dish-controllers.module";
 import { OrderModule } from "./domain/order/order.module";
 import { UsersModule } from "./domain/users/users.module";
+import { ReviewModule } from "./domain/modules/review/review.module";
+import { AdminModule } from "./domain/admin/admin.module";
 import { RedisModule } from "./infrastructure/cache/redis.module";
 import configuration from "./infrastructure/config/configuration";
 import { PersistenceModule } from "./infrastructure/persistence/persistence.module";
@@ -47,6 +49,8 @@ import { MetricsMiddleware } from "./middlewares/metrics.middleware";
     UsersModule,
     DishModule,
     FormateursModule,
+    ReviewModule,
+    AdminModule,
     RedisModule,
 
     // Métriques de l'application

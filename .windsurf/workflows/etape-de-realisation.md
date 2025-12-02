@@ -1,7 +1,7 @@
 ---
 description: Étapes de réalisation du backend pour une application de restaurant moderne
 auto_execution_mode: 1
-updated: 2025-11-26
+updated: 2025-12-02
 ---
 
 # PROJET BACKEND RESTAURANT - ARCHITECTURE & IMPLÉMENTATION
@@ -46,8 +46,28 @@ Je développe une application backend complète pour un restaurant avec les spé
   - [x] Contrôleur avec endpoints RESTful
   - [x] Documentation Swagger complète
 
+### ✅ TÂCHES TERMINÉES
+- [x] Configuration initiale du projet Node.js/TypeScript
+- [x] Configuration de Prisma avec MongoDB
+- [x] Mise en place de la structure de base du projet
+- [x] Configuration du serveur Express
+- [x] Intégration de Redis pour le rate limiting
+- [x] Configuration de l'authentification JWT
+  - [x] Mise en place des DTOs de validation
+  - [x] Configuration sécurisée des tokens
+  - [x] Documentation Swagger des endpoints
+- [x] Implémentation du modèle Dish (Plats)
+  - [x] DTOs de création et mise à jour
+  - [x] Service avec logique métier
+  - [x] Contrôleur avec endpoints RESTful
+  - [x] Documentation Swagger complète
+- [x] Tests des endpoints d'authentification
+  - [x] Tests unitaires pour l'inscription et la connexion
+  - [x] Tests d'intégration des routes d'authentification
+  - [x] Vérification de la validation des entrées
+  - [x] Tests de sécurité (tokens invalides, accès non autorisés)
+
 ### 🚧 EN COURS
-- [ ] Tests des endpoints d'authentification
   - [ ] Inscription
   - [ ] Connexion
   - [ ] Rafraîchissement du token
