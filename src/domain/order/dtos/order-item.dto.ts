@@ -1,6 +1,13 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class OrderItemDto {
+  constructor() {
+    this.dishId = "";
+    this.name = "";
+    this.quantity = 1; // Valeur par défaut
+    this.unitPrice = 0; // Valeur par défaut
+  }
+
   @IsString()
   @IsNotEmpty()
   dishId: string;

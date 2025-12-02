@@ -4,98 +4,69 @@ import { CreateDishDto } from "../dtos/create-dish.dto";
 import { UpdateDishDto } from "../dtos/update-dish.dto";
 import { Dish } from "../entities/dish.entity";
 import { IDishRepository } from "./IDishRepository";
+import { PrismaDishType, toDishDomain } from "../types/prisma-dish.type";
+import { UpdateDishInput } from "../types/update-dish-input.type";
 
 @Injectable()
 export class PrismaDishRepository implements IDishRepository {
   constructor(private prisma: PrismaService) {}
 
-  private toDomain(prismaDish: {
-    id: string;
-    name: string;
-    description: string | null;
-    price: number;
-    images: string[];
-    category: string;
-    is_vegetarian: boolean;
-    is_vegan: boolean;
-    is_gluten_free: boolean;
-    is_available: boolean;
-    average_rating: number | null;
-    created_at: Date;
-    updated_at: Date;
-  }): Dish {
-    return {
-      id: prismaDish.id,
-      name: prismaDish.name,
-      description: prismaDish.description || undefined,
-      price:
-        typeof prismaDish.price === "string"
-          ? parseFloat(prismaDish.price)
-          : prismaDish.price,
-      category: prismaDish.category,
-      imageUrl: prismaDish.images?.[0] || undefined,
-      isAvailable: prismaDish.is_available,
-      isVegetarian: prismaDish.is_vegetarian,
-      isVegan: prismaDish.is_vegan,
-      isGlutenFree: prismaDish.is_gluten_free,
-      averageRating: prismaDish.average_rating || undefined,
-      createdAt: prismaDish.created_at,
-      updatedAt: prismaDish.updated_at,
-    };
+  private toDomain(prismaDish: PrismaDishType): Dish {
+    return toDishDomain(prismaDish);
   }
 
   async create(data: CreateDishDto): Promise<Dish> {
     const createdDish = await this.prisma.dish.create({
       data: {
         name: data.name,
-        description: data.description,
+        description: data.description || null,
         price: data.price,
         category: data.category,
-images: data.imageUrl ? [data.imageUrl] : [],
-        is_available: data.isAvailable,
+        imageUrl: data.imageUrl || null,
+        isVegetarian: data.isVegetarian || false,
+        isVegan: data.isVegan || false,
+        isGlutenFree: data.isGlutenFree || false,
+        isAvailable: data.isAvailable !== undefined ? data.isAvailable : true,
+        averageRating: null,
       },
-    });
+    }) as unknown as PrismaDishType;
     return this.toDomain(createdDish);
   }
 
   async findById(id: string): Promise<Dish | null> {
     const dish = await this.prisma.dish.findUnique({
       where: { id },
-    });
+    }) as unknown as PrismaDishType | null;
     return dish ? this.toDomain(dish) : null;
   }
 
   async findAll(): Promise<Dish[]> {
     const dishes = await this.prisma.dish.findMany({
-      where: { is_available: true },
-    });
+      where: { isAvailable: true },
+    }) as unknown as PrismaDishType[];
     return dishes.map((dish) => this.toDomain(dish));
   }
 
   async update(id: string, data: UpdateDishDto): Promise<Dish | null> {
-    const updateData: {
-      name?: string;
-      description?: string | null;
-      price?: number;
-      category?: string;
-      image_url?: string | null;
-      is_available?: boolean;
-    } = {};
+    const updateData: UpdateDishInput = {};
 
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.description !== undefined)
-      updateData.description = data.description;
-    if (data.price !== undefined)
-      updateData.price = parseFloat(data.price.toString());
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.price !== undefined) updateData.price = parseFloat(data.price.toString());
     if (data.category !== undefined) updateData.category = data.category;
-    if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
-    if (data.isAvailable !== undefined)
-      updateData.is_available = data.isAvailable;
+    if (data.imageUrl !== undefined) {
+      updateData.imageUrl = data.imageUrl || null;
+    }
+if (data.isAvailable !== undefined) updateData.isAvailable = data.isAvailable;
+    if (data.isVegetarian !== undefined) updateData.isVegetarian = data.isVegetarian;
+    if (data.isVegan !== undefined) updateData.isVegan = data.isVegan;
+    if (data.isGlutenFree !== undefined) updateData.isGlutenFree = data.isGlutenFree;
+    if (data.averageRating !== undefined) updateData.averageRating = data.averageRating;
 
     const updatedDish = await this.prisma.dish.update({
       where: { id },
       data: updateData,
-    });
+    }) as unknown as PrismaDishType;
 
     return updatedDish ? this.toDomain(updatedDish) : null;
   }
@@ -122,9 +93,9 @@ images: data.imageUrl ? [data.imageUrl] : [],
     const dishes = await this.prisma.dish.findMany({
       where: {
         category,
-        is_available: true,
+        isAvailable: true,
       },
-    });
+    }) as unknown as PrismaDishType[];
     return dishes.map((dish) => this.toDomain(dish));
   }
 }

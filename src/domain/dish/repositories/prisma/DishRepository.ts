@@ -1,59 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@infrastructure/persistence/prisma/prisma.service';
-import { IDishRepository } from '@domain/dish/repositories/IDishRepository';
-import { Dish } from '@domain/dish/entities/dish.entity';
-import { CreateDishDto } from '@domain/dish/dtos/create-dish.dto';
-import { UpdateDishDto } from '@domain/dish/dtos/update-dish.dto';
+import { CreateDishDto } from "@domain/dish/dtos/create-dish.dto";
+import { UpdateDishDto } from "@domain/dish/dtos/update-dish.dto";
+import { Dish, PrismaDish } from "@domain/dish/entities/dish.entity";
+import { IDishRepository } from "@domain/dish/repositories/IDishRepository";
+import { PrismaService } from "@infrastructure/persistence/prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class PrismaDishRepository implements IDishRepository {
   constructor(private prisma: PrismaService) {}
 
-  private toDomain(prismaDish: {
-    id: string;
-    name: string;
-    description: string | null;
-    price: number | string;
-    images: string[];
-    category: string;
-    is_vegetarian: boolean;
-    is_vegan: boolean;
-    is_gluten_free: boolean;
-    is_available: boolean;
-    average_rating: number | null;
-    created_at: Date;
-    updated_at: Date;
-  }): Dish {
-    return {
-      id: prismaDish.id,
-      name: prismaDish.name,
-      description: prismaDish.description || undefined,
-      price: typeof prismaDish.price === 'string' ? parseFloat(prismaDish.price) : prismaDish.price,
-      category: prismaDish.category,
-      imageUrl: prismaDish.images?.[0] || undefined,
-      isAvailable: prismaDish.is_available,
-      isVegetarian: prismaDish.is_vegetarian,
-      isVegan: prismaDish.is_vegan,
-      isGlutenFree: prismaDish.is_gluten_free,
-      averageRating: prismaDish.average_rating || undefined,
-      createdAt: prismaDish.created_at,
-      updatedAt: prismaDish.updated_at,
-    };
+  private toDomain(prismaDish: PrismaDish): Dish {
+    return Dish.fromPrisma({
+      ...prismaDish,
+      // S'assurer que les champs optionnels sont correctement gérés
+      description: prismaDish.description || null,
+      imageUrl: prismaDish.imageUrl || null,
+      average_rating: prismaDish.average_rating || null,
+    });
   }
 
   async create(data: CreateDishDto): Promise<Dish> {
     const createdDish = await this.prisma.dish.create({
       data: {
         name: data.name,
-        description: data.description,
+        description: data.description || null,
         price: data.price,
         category: data.category,
-        images: data.imageUrl ? [data.imageUrl] : [],
-        is_available: data.isAvailable,
+        imageUrl: data.imageUrl || null,
+        isAvailable: data.isAvailable !== undefined ? data.isAvailable : true,
+        isVegetarian: data.isVegetarian || false,
+        isVegan: data.isVegan || false,
+        isGlutenFree: data.isGlutenFree || false,
+        averageRating: data.averageRating || null,
       },
     });
 
-    return this.toDomain(createdDish);
+    return this.toDomain(createdDish as unknown as PrismaDish);
   }
 
   async findById(id: string): Promise<Dish | null> {
@@ -61,39 +43,58 @@ export class PrismaDishRepository implements IDishRepository {
       where: { id },
     });
 
-    return dish ? this.toDomain(dish) : null;
+    return dish ? this.toDomain(dish as unknown as PrismaDish) : null;
   }
 
   async findAll(): Promise<Dish[]> {
     const dishes = await this.prisma.dish.findMany();
-    return dishes.map(dish => this.toDomain(dish));
+    return dishes.map((dish) => this.toDomain(dish as unknown as PrismaDish));
   }
 
   async update(id: string, data: UpdateDishDto): Promise<Dish | null> {
-    interface UpdateData {
+    interface UpdateDishData {
       name?: string;
       description?: string | null;
       price?: number;
       category?: string;
-      images?: string[];
-      is_available?: boolean;
+      imageUrl?: string | null;
+      isAvailable?: boolean;
+      isVegetarian?: boolean;
+      isVegan?: boolean;
+      isGlutenFree?: boolean;
+      averageRating?: number | null;
     }
-    
-    const updateData: UpdateData = {};
-    
-    if (data.name !== undefined) updateData.name = data.name;
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.price !== undefined) updateData.price = parseFloat(data.price.toString());
-    if (data.category !== undefined) updateData.category = data.category;
-    if (data.imageUrl !== undefined) updateData.images = data.imageUrl ? [data.imageUrl] : [];
-    if (data.isAvailable !== undefined) updateData.is_available = data.isAvailable;
-    
-    const updatedDish = await this.prisma.dish.update({
-      where: { id },
-      data: updateData,
-    });
 
-    return updatedDish ? this.toDomain(updatedDish) : null;
+    const updateData: UpdateDishData = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined)
+      updateData.description = data.description || null;
+    if (data.price !== undefined) updateData.price = data.price;
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.imageUrl !== undefined)
+      updateData.imageUrl = data.imageUrl || null;
+    if (data.isAvailable !== undefined)
+      updateData.isAvailable = data.isAvailable;
+    if (data.isVegetarian !== undefined)
+      updateData.isVegetarian = data.isVegetarian;
+    if (data.isVegan !== undefined) updateData.isVegan = data.isVegan;
+    if (data.isGlutenFree !== undefined)
+      updateData.isGlutenFree = data.isGlutenFree;
+    if (data.averageRating !== undefined)
+      updateData.averageRating = data.averageRating || null;
+
+    try {
+      const updatedDish = await this.prisma.dish.update({
+        where: { id },
+        data: updateData,
+      });
+
+      return this.toDomain(updatedDish as unknown as PrismaDish);
+    } catch (error) {
+      console.error("Error updating dish:", error);
+      return null;
+    }
   }
 
   async delete(id: string): Promise<boolean> {
@@ -103,6 +104,7 @@ export class PrismaDishRepository implements IDishRepository {
       });
       return true;
     } catch (error) {
+      console.error("Error deleting dish:", error);
       return false;
     }
   }
@@ -118,6 +120,6 @@ export class PrismaDishRepository implements IDishRepository {
     const dishes = await this.prisma.dish.findMany({
       where: { category },
     });
-    return dishes.map(dish => this.toDomain(dish));
+    return dishes.map((dish) => this.toDomain(dish as unknown as PrismaDish));
   }
 }
