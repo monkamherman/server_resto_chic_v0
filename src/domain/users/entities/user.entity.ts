@@ -1,4 +1,6 @@
 import { Exclude } from 'class-transformer';
+import { Order } from '@domain/order/entities/order.entity';
+import { Reservation } from '@domain/reservation/entities/reservation.entity';
 
 export enum UserRole {
   CUSTOMER = 'CUSTOMER',
@@ -64,8 +66,8 @@ export class User {
   phoneVerified: boolean = false;
   
   // Relations (à peupler par les services)
-  orders?: any[]; // Order[]
-  reservations?: any[]; // Reservation[]
+  orders?: Order[];
+  reservations?: Reservation[];
   
   // Timestamps
   createdAt?: Date;
@@ -109,6 +111,6 @@ export class User {
   }
   
   isActiveUser(): boolean {
-    return this.status === UserStatus.ACTIVE && this.isActive === true;
+    return this.status === UserStatus.ACTIVE && this.emailVerified === true;
   }
 }

@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { IOrderRepository } from '../repositories/IOrderRepository';
-import { Prisma } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { OrderStatus, Prisma } from "@prisma/client";
+import { Order } from "../entities/order.entity";
+import { IOrderRepository } from "../repositories/IOrderRepository";
 
 @Injectable()
 export class OrderService {
@@ -22,7 +23,27 @@ export class OrderService {
     return this.orderRepository.update(id, updateData);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<boolean> {
     return this.orderRepository.delete(id);
+  }
+
+  async findByStatus(status: OrderStatus): Promise<Order[]> {
+    return this.orderRepository.findByStatus(status);
+  }
+
+  async findByTable(tableNumber: string): Promise<Order[]> {
+    return this.orderRepository.findByTable(tableNumber);
+  }
+
+  async findByUser(userId: string): Promise<Order[]> {
+    return this.orderRepository.findByUser(userId);
+  }
+
+  async findMany(params: {
+    where?: Prisma.OrderWhereInput;
+    orderBy?: Prisma.Enumerable<Prisma.OrderOrderByWithRelationInput>;
+    take?: number;
+  }): Promise<Order[]> {
+    return this.orderRepository.findMany(params);
   }
 }
